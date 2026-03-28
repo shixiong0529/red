@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>★红蜻蜓聊天室★ - 欢迎您的到来！</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="main-wrapper">
+<!-- BANNER -->
+  <div class="top-banner"><span class="dragonfly-icon">🪽</span><span class="site-title">★ 红蜻蜓聊天室 ★</span><div class="subtitle">—— 心灵的港湾 · 友情的桥梁 · 缘分从这里开始 ——</div></div>
+
+  <!-- MARQUEE -->
+  <div class="marquee-bar"><div class="marquee-text">★★★ 欢迎来到红蜻蜓聊天室！请遵守聊天室规则，文明聊天！ ★★★ <span>系统公告：</span>本周六晚8点举办"真心话大冒险"主题活动！ ★★★ 留言板已开放，快去写下你的心声！ ★★★</div></div>
+
+  <!-- NAV -->
+  <div class="nav-bar">
+    <a class="nav-btn" href="/">聊天大厅</a>
+    <a class="nav-btn" href="/guestbook">留言板</a>
+    <a class="nav-btn" href="/settings">个人设置</a>
+    <a class="nav-btn active" href="/profile">查看资料</a>
+    <a class="nav-btn" href="/help">聊天帮助</a>    <a class="nav-btn" id="adminLink" href="/admin" style="display:none">后台管理</a>
+    <a class="nav-btn" href="/logout">退出聊天  </a>
+  </div>
+
+  <!-- ====== TAB: PROFILE ====== -->
+  <div class="tab-page active" id="tabProf">
+    <div class="gb-title-bar"><h2 style="color:#fc0">👤 查看资料</h2><div class="gb-stats">点击在线用户查看TA的资料</div></div>
+    <div style="padding:12px;display:flex;gap:12px;flex-wrap:wrap;min-height:380px;">
+
+      <!-- User List Panel -->
+      <div class="post-form-wrapper" style="margin:0;width:160px;min-width:140px;flex-shrink:0;">
+        <div class="form-title">在线用户列表</div>
+        <div id="profUserList" style="padding:5px;max-height:360px;overflow-y:auto;"></div>
+      </div>
+
+      <!-- Profile Card -->
+      <div class="post-form-wrapper" style="margin:0;flex:1;min-width:240px;">
+        <div class="form-title" id="profCardTitle">个人名片</div>
+        <div id="profCard" style="padding:12px;">
+          <div style="text-align:center;color:#999;padding:30px 0;">← 请先从左侧选择一位用户</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer"><div class="copyright">Copyright © 2000-2001 红蜻蜓聊天室 All Rights Reserved</div><hr class="separator-line"><div>站长信箱：<a href="javascript:void(0)"><span class="__cf_email__" data-cfemail="1f7e7b7276715f6d7a7b7b6d7e78707179736631717a6b">[email&#160;protected]</span></a> ｜ <a href="javascript:void(0)">申请链接</a> ｜ <a href="javascript:void(0)">聊天规则  </a></div><div style="margin-top:3px">本站已稳定运行 <span style="color:#009900" id="runDays">396</span> 天 ｜ <span style="color:#cc6600">最高同时在线：512人</span></div><div style="margin-top:3px;color:#999">Powered by RedDragonfly v2.1 · 最佳浏览：IE5.0+ 800×600</div></div>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+<div class="confirm-overlay hidden" id="confirmOverlay"><div class="confirm-box"><p id="confirmText"></p><div class="warning">删除后将无法恢复！</div><button class="confirm-yes" id="confirmYes">确定删除</button><button class="confirm-no" onclick="hideConfirm()">取 消</button></div></div>
+
+<script src="/static/js/shared.js"></script>
+<script src="/static/js/profile.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+

@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>★红蜻蜓聊天室★ - 欢迎您的到来！</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: "SimSun", "宋体", serif;
+    font-size: 15px;
+    background: #fffff0;
+    color: #333333;
+    overflow-x: hidden;
+  }
+
+  @keyframes glow { 0%,100%{text-shadow:0 0 5px #ff3300,0 0 10px #ff6600}50%{text-shadow:0 0 15px #ff3300,0 0 25px #ff6600,0 0 35px #ff9900} }
+  @keyframes marquee-scroll { 0%{transform:translateX(100%)}100%{transform:translateX(-100%)} }
+  @keyframes dragonfly-fly { 0%{transform:translate(0,0) rotate(0)}25%{transform:translate(10px,-8px) rotate(5deg)}50%{transform:translate(0,-12px) rotate(0)}75%{transform:translate(-10px,-8px) rotate(-5deg)}100%{transform:translate(0,0) rotate(0)} }
+  @keyframes rainbow { 0%{color:#f00}14%{color:#f70}28%{color:#ff0}42%{color:#0f0}57%{color:#09f}71%{color:#60f}85%{color:#f0f}100%{color:#f00} }
+  @keyframes spin { 0%{transform:rotate(0)}100%{transform:rotate(360deg)} }
+  @keyframes fadeIn { 0%{opacity:0;transform:translateY(-8px)}100%{opacity:1;transform:translateY(0)} }
+  @keyframes newPost { 0%{background:#fff0d8}50%{background:#fffae8}100%{background:transparent} }
+
+  .main-wrapper { max-width: 100%; margin: 0; background: #fffff0; border: 3px double #ff6600; }
+
+  /* BANNER */
+  .top-banner { background: linear-gradient(180deg,#330000,#660000,#330000); border-bottom: 2px solid #ff6600; text-align: center; padding: 14px 20px; }
+  .top-banner::before, .top-banner::after { content: '✦✦✦'; color: #ffcc00; font-size: 10px; letter-spacing: 3px; }
+  .site-title { font-family:'Ma Shan Zheng',cursive; font-size: 52px; color: #ff3300; animation: glow 2s ease-in-out infinite; letter-spacing: 10px; text-shadow: 2px 2px 0 #000,0 0 10px #ff6600; display: block; margin: 5px 0; }
+  .dragonfly-icon { display: inline-block; font-size: 40px; animation: dragonfly-fly 2s ease-in-out infinite; filter: drop-shadow(0 0 3px #ff3300); }
+  .subtitle { font-size: 14px; color: #ffcc66; letter-spacing: 4px; }
+
+  /* MARQUEE */
+  .marquee-bar { background: #000066; border-bottom: 1px solid #33f; border-top: 1px solid #33f; padding: 3px 0; overflow: hidden; white-space: nowrap; }
+  .marquee-text { display: inline-block; animation: marquee-scroll 20s linear infinite; color: #0ff; font-size: 15px; }
+  .marquee-text span { color: #990099; }
+
+  /* NAV */
+  .nav-bar { background: linear-gradient(90deg,#330033,#003333,#330033); display: flex; justify-content: center; gap: 4px; padding: 6px 10px; border-bottom: 1px solid #666; flex-wrap: wrap; }
+  .nav-btn { background: linear-gradient(180deg,#555,#333,#111); color: #ffcc00; border: 1px outset #888; padding: 5px 18px; font-size: 15px; font-family: "SimSun",serif; cursor: pointer; }
+  .nav-btn:hover { background: linear-gradient(180deg,#777,#555,#333); color: #fff; }
+  .nav-btn.active { background: linear-gradient(180deg,#993300,#cc6600,#993300); color: #fff; border: 1px inset #ffcc00; }
+
+  /* TAB PAGES */
+  .tab-page { display: none; }
+  .tab-page.active { display: block; }
+
+  /* CHAT AREA */
+  .info-bar { background: #fffff0; display: flex; justify-content: space-between; padding: 3px 8px; border-bottom: 1px solid #ddd; font-size: 14px; flex-wrap: wrap; gap: 2px; }
+  .info-bar .online-count { color: #009900; } .info-bar .room-name { color: #cc6600; } .info-bar .visitor-count { color: #990099; }
+  .counter-num { background: #fffff8; color: #009900; border: 1px inset #ccc; padding: 1px 6px; font-family: "Courier New",monospace; font-weight: bold; }
+  .ad-bar { background: #fffff0; border-bottom: 1px solid #ddd; padding: 4px 16px; font-size: 16px; color: #888; display: flex; justify-content: space-between; flex-wrap: wrap; }
+  .ad-bar a { color: #c93; text-decoration: none; }
+  .content-area { display: flex; min-height: 520px; }
+  .sidebar-left { width: 200px; min-width: 200px; background: #fffff0; border-right: 1px solid #ccc; padding: 8px; font-size: 14px; }
+  .sidebar-section { margin-bottom: 8px; }
+  .sidebar-title { background: linear-gradient(90deg,#603,#306); color: #fc0; padding: 5px 8px; font-weight: bold; font-size: 14px; text-align: center; border: 1px outset #996; margin-bottom: 5px; }
+  .room-list { list-style: none; } .room-list li { padding: 5px 8px; cursor: pointer; color: #336699; border-bottom: 1px dotted #ddd; }
+  .room-list li:hover { background: #eef; color: #003; } .room-list li.current { background: #336; color: #ff0; }
+  .room-list li::before { content: '▸ '; color: #f60; font-size: 8px; }
+  .user-list-item { padding: 4px 8px; color: #336633; font-size: 14px; cursor: pointer; }
+  .user-list-item:hover { color: #000; text-decoration: underline; }
+  .user-list-item.admin { color: #cc0000; font-weight: bold; } .user-list-item.admin::before { content: '★'; color: #cc6600; }
+  .user-list-item.female { color: #cc3399; } .user-list-item.female::before { content: '♀ '; }
+  .user-list-item.male { color: #3366cc; } .user-list-item.male::before { content: '♂ '; }
+  .chat-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 10px 16px; background: #fffff0; border-bottom: 1px solid #ccc; max-height: 520px; }
+  .chat-messages::-webkit-scrollbar { width: 12px; } .chat-messages::-webkit-scrollbar-track { background: #faf8f0; } .chat-messages::-webkit-scrollbar-thumb { background: #f60; border: 1px solid #930; }
+  .msg { margin-bottom: 6px; line-height: 1.7; word-break: break-all; border-bottom: 1px dotted #ddd; padding-bottom: 3px; }
+  .msg-time { color: #999; font-size: 12px; font-family: "Courier New",monospace; }
+  .msg-name { font-weight: bold; cursor: pointer; } .msg-name:hover { text-decoration: underline; }
+  .msg-sys { color: #999; font-style: italic; text-align: center; font-size: 14px; padding: 2px; } .msg-sys .highlight { color: #cc6600; font-style: normal; }
+  .msg-action { color: #9933cc; font-style: italic; } .whisper { color: #cc3399; font-style: italic; } .rainbow-text { animation: rainbow 3s linear infinite; }
+
+  /* CHAT INPUT */
+  .input-area { background: #fffff0; border-top: 2px groove #ccc; padding: 10px 16px; }
+  .input-toolbar { display: flex; gap: 5px; margin-bottom: 4px; align-items: center; flex-wrap: wrap; font-size: 14px; }
+  .input-toolbar label { color: #666; }
+  .input-toolbar select { background: #fffff8; color: #333; border: 1px inset #999; font-size: 14px; font-family: "SimSun",serif; padding: 1px 3px; }
+  .color-options { display: flex; gap: 2px; }
+  .color-dot { width: 20px; height: 20px; border: 1px outset #888; cursor: pointer; display: inline-block; }
+  .color-dot:hover { border: 1px inset #333; } .color-dot.selected { border: 2px solid #000; }
+  .input-row { display: flex; gap: 4px; align-items: flex-end; }
+  .input-row select { background: #fffff8; color: #333; border: 1px inset #999; font-size: 14px; font-family: "SimSun",serif; width: 100px; }
+  .chat-input { flex: 1; background: #fffff8; color: #333; border: 2px inset #999; padding: 6px 10px; font-size: 16px; font-family: "SimSun",serif; outline: none; min-width: 0; }
+  .chat-input:focus { border-color: #f60; background: #fffff0; } .chat-input::placeholder { color: #bbb; }
+  .send-btn { background: linear-gradient(180deg,#c30,#910); color: #ff0; border: 2px outset #f60; padding: 6px 22px; font-size: 18px; font-family: "SimSun",serif; font-weight: bold; cursor: pointer; white-space: nowrap; }
+  .send-btn:hover { background: linear-gradient(180deg,#f40,#c20); } .send-btn:active { border: 2px inset #f60; }
+  .action-btn { background: linear-gradient(180deg,#336,#224); color: #aaf; border: 1px outset #669; padding: 5px 14px; font-size: 14px; cursor: pointer; font-family: "SimSun",serif; white-space: nowrap; }
+  .action-btn:hover { background: #448; }
+  .emote-panel { background: #fffff0; border: 1px solid #ccc; padding: 5px; margin-top: 4px; display: none; flex-wrap: wrap; gap: 3px; }
+  .emote-panel.show { display: flex; }
+  .emote-item { cursor: pointer; font-size: 22px; padding: 4px; border: 1px solid transparent; } .emote-item:hover { border-color: #f60; background: #fff8e8; }
+
+  /* LOGIN */
+  .login-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.85); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+  .login-overlay.hidden { display: none; }
+  .login-box { background: #fffff0; border: 3px double #f60; padding: 30px 40px; text-align: center; width: 440px; box-shadow: 0 0 30px rgba(255,102,0,.3); }
+  .login-box h2 { font-family:'Ma Shan Zheng',cursive; color: #f30; font-size: 40px; animation: glow 2s ease-in-out infinite; margin-bottom: 5px; }
+  .login-box .login-sub { color: #996; font-size: 14px; margin-bottom: 12px; letter-spacing: 1px; }
+  .login-field { margin-bottom: 8px; text-align: left; }
+  .login-field label { color: #996633; font-size: 15px; display: block; margin-bottom: 2px; }
+  .login-field input, .login-field select { width: 100%; background: #fffff8; color: #333; border: 2px inset #ccc; padding: 8px 12px; font-size: 16px; font-family: "SimSun",serif; }
+  .login-field select { color: #663300; }
+  .login-enter { background: linear-gradient(180deg,#c30,#810); color: #ff0; border: 2px outset #f60; padding: 8px 40px; font-size: 20px; font-family:'Ma Shan Zheng',cursive; cursor: pointer; margin-top: 10px; letter-spacing: 3px; }
+  .login-enter:hover { background: linear-gradient(180deg,#f40,#a20); } .login-enter:active { border: 2px inset #f60; }
+  .login-tips { color: #999; font-size: 13px; margin-top: 8px; line-height: 1.5; } .login-tips a { color: #3366cc; }
+  .sparkle { display: inline-block; animation: spin 3s linear infinite; font-size: 10px; }
+
+  /* GUESTBOOK */
+  .gb-title-bar { background: linear-gradient(90deg,#603,#306,#603); padding: 10px 20px; border-bottom: 1px solid #996; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+  .gb-title-bar h2 { color: #fc0; font-size: 18px; } .gb-title-bar h2::before { content: '📋 '; }
+  .gb-stats { color: #ddd; font-size: 14px; } .gb-stats .num { background: #fffff8; color: #009900; border: 1px inset #ccc; padding: 1px 6px; font-family: "Courier New",monospace; font-weight: bold; }
+  .post-form-wrapper { background: #fffff0; border: 1px solid #ccc; margin: 14px 20px; }
+  .form-title { background: linear-gradient(90deg,#306,#036); color: #fc0; padding: 4px 10px; font-size: 15px; font-weight: bold; border-bottom: 1px solid #555; } .form-title::before { content: '✎ '; }
+  .form-body { padding: 14px 18px; }
+  .form-row { display: flex; margin-bottom: 8px; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .form-row label { color: #663300; font-size: 15px; min-width: 55px; text-align: right; }
+  .form-row input[type="text"], .form-row select { background: #fffff8; color: #333; border: 2px inset #999; padding: 5px 10px; font-size: 15px; font-family: "SimSun",serif; flex: 1; max-width: 280px; }
+  .form-row input:focus, .form-row textarea:focus, .form-row select:focus { border-color: #f60; background: #fffff8; outline: none; }
+  .form-row textarea { background: #fffff8; color: #333; border: 2px inset #999; padding: 8px 12px; font-size: 15px; font-family: "SimSun",serif; flex: 1; resize: vertical; min-height: 90px; }
+  .form-row textarea::placeholder, .form-row input::placeholder { color: #bbb; }
+  .mood-select { display: flex; gap: 6px; flex-wrap: wrap; }
+  .mood-option { cursor: pointer; font-size: 22px; padding: 4px 6px; border: 1px solid transparent; } .mood-option:hover { border-color: #f60; background: #fff8e8; } .mood-option.selected { border-color: #f60; background: #fff8e8; }
+  .form-actions { display: flex; gap: 6px; margin-top: 8px; justify-content: center; }
+  .btn-submit { background: linear-gradient(180deg,#c30,#910); color: #ff0; border: 2px outset #f60; padding: 6px 26px; font-size: 16px; font-family: "SimSun",serif; font-weight: bold; cursor: pointer; }
+  .btn-submit:hover { background: linear-gradient(180deg,#f40,#c20); } .btn-submit:active { border: 2px inset #f60; }
+  .btn-reset { background: linear-gradient(180deg,#336,#224); color: #aaf; border: 2px outset #669; padding: 6px 20px; font-size: 15px; font-family: "SimSun",serif; cursor: pointer; } .btn-reset:hover { background: #448; }
+  .message-list { padding: 14px 20px; }
+  .gb-card { background: #fffff0; border: 1px solid #ccc; margin-bottom: 10px; animation: fadeIn .3s ease-out; }
+  .gb-card.highlight-new { animation: fadeIn .3s ease-out, newPost 1.5s ease-out; }
+  .gb-header { background: #fff8f0; padding: 8px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; flex-wrap: wrap; gap: 4px; }
+  .gb-header-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .gb-floor { background: #306; color: #fc0; padding: 2px 10px; font-size: 13px; font-weight: bold; border: 1px outset #639; }
+  .gb-author { font-weight: bold; font-size: 15px; } .gb-author.male { color: #3366cc; } .gb-author.male::before { content: '♂ '; } .gb-author.female { color: #cc3399; } .gb-author.female::before { content: '♀ '; } .gb-author.secret { color: #888; } .gb-author.secret::before { content: '？ '; }
+  .gb-mood { font-size: 14px; } .gb-time { color: #999; font-size: 13px; font-family: "Courier New",monospace; }
+  .gb-subject { color: #f90; font-size: 16px; font-weight: bold; padding: 8px 16px 4px; } .gb-subject::before { content: '主题：'; color: #963; font-size: 14px; font-weight: normal; }
+  .gb-body { padding: 6px 12px 8px; color: #333; font-size: 15px; line-height: 1.8; word-break: break-all; white-space: pre-wrap; }
+  .gb-footer { border-top: 1px dashed #ddd; padding: 6px 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px; }
+  .gb-footer-left { color: #555; font-size: 10px; }
+  .gb-actions { display: flex; gap: 3px; }
+  .gb-action-btn { background: linear-gradient(180deg,#f5f3e8,#ece8d8); color: #666; border: 1px outset #ccc; padding: 3px 12px; font-size: 13px; font-family: "SimSun",serif; cursor: pointer; } .gb-action-btn:hover { background: #ece8d8; color: #333; } .gb-action-btn.delete:hover { background: #fdd; color: #c00; }
+  .replies-section { margin: 0 16px 10px 40px; border-left: 2px solid #ccc; }
+  .reply-card { background: #fffef5; border: 1px solid #ddd; margin-bottom: 1px; animation: fadeIn .3s ease-out; }
+  .reply-header { background: #faf8f0; padding: 5px 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px; }
+  .reply-header-left { display: flex; align-items: center; gap: 6px; }
+  .reply-tag { background: #336; color: #adf; padding: 1px 6px; font-size: 9px; border: 1px solid #669; }
+  .reply-author { font-weight: bold; font-size: 14px; } .reply-author.male { color: #3366cc; } .reply-author.female { color: #cc3399; } .reply-author.secret { color: #888; }
+  .reply-time { color: #999; font-size: 12px; font-family: "Courier New",monospace; }
+  .reply-body { padding: 6px 14px 8px; color: #555; font-size: 14px; line-height: 1.7; word-break: break-all; white-space: pre-wrap; }
+  .reply-form { background: #fffff0; border: 1px solid #ccc; margin: 4px 10px 8px 30px; padding: 14px 20px; display: none; }
+  .reply-form.show { display: block; animation: fadeIn .2s ease-out; }
+  .reply-form-title { color: #996633; font-size: 14px; margin-bottom: 5px; } .reply-form-title::before { content: '↳ '; color: #f60; }
+  .rfr { display: flex; gap: 6px; margin-bottom: 4px; align-items: center; flex-wrap: wrap; }
+  .rfr label { color: #666; font-size: 14px; min-width: 50px; text-align: right; }
+  .rfr input[type="text"] { background: #fffff8; color: #333; border: 1px inset #999; padding: 2px 5px; font-size: 14px; font-family: "SimSun",serif; width: 180px; }
+  .rfr select { background: #fffff8; color: #663300; border: 1px inset #999; font-size: 14px; font-family: "SimSun",serif; }
+  .rfr textarea { background: #fffff8; color: #333; border: 1px inset #999; padding: 3px 5px; font-size: 14px; font-family: "SimSun",serif; flex: 1; min-height: 55px; resize: vertical; }
+  .reply-submit-btn { background: linear-gradient(180deg,#930,#610); color: #fc0; border: 1px outset #c60; padding: 4px 16px; font-size: 14px; font-family: "SimSun",serif; cursor: pointer; } .reply-submit-btn:hover { background: #b40; }
+  .reply-cancel-btn { background: #f5f3e8; color: #666; border: 1px outset #555; padding: 4px 14px; font-size: 14px; font-family: "SimSun",serif; cursor: pointer; } .reply-cancel-btn:hover { background: #ece8d8; }
+  .pagination { text-align: center; padding: 12px; border-top: 1px dashed #ddd; }
+  .pagination span { display: inline-block; padding: 4px 12px; margin: 0 3px; font-size: 14px; cursor: pointer; }
+  .page-num { background: #faf8f0; color: #3366cc; border: 1px outset #ccc; } .page-num:hover { background: #ece8d8; color: #000; }
+  .page-current { background: #930; color: #fc0; border: 1px inset #f60; font-weight: bold; } .page-label { color: #999; cursor: default; }
+  .empty-state { text-align: center; padding: 40px 20px; color: #999; font-size: 16px; } .empty-state .big-icon { font-size: 40px; margin-bottom: 10px; display: block; }
+
+  /* CONFIRM / TOAST */
+  .confirm-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.5); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+  .confirm-overlay.hidden { display: none; }
+  .confirm-box { background: #fffff0; border: 2px double #f60; padding: 30px 40px; text-align: center; box-shadow: 0 0 20px rgba(0,0,0,.2); }
+  .confirm-box p { color: #663300; font-size: 16px; margin-bottom: 12px; } .confirm-box .warning { color: #cc0000; font-size: 14px; margin-bottom: 10px; }
+  .confirm-yes { background: linear-gradient(180deg,#c30,#810); color: #ff0; border: 2px outset #f60; padding: 3px 18px; font-size: 15px; font-family: "SimSun",serif; cursor: pointer; margin: 0 5px; }
+  .confirm-no { background: linear-gradient(180deg,#336,#224); color: #aaf; border: 2px outset #669; padding: 3px 18px; font-size: 15px; font-family: "SimSun",serif; cursor: pointer; margin: 0 5px; }
+  .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #fffff8; color: #663300; border: 1px solid #f60; padding: 8px 20px; font-size: 15px; z-index: 2000; box-shadow: 0 2px 10px rgba(0,0,0,.15); animation: fadeIn .3s ease-out; display: none; }
+  .toast.show { display: block; } .toast.error { color: #cc0000; border-color: #c00; background: #fff0f0; } .toast.success { color: #009900; border-color: #090; background: #f5fff0; }
+
+  /* FOOTER */
+  .footer { background: #fffff0; border-top: 2px groove #ccc; padding: 14px 20px; text-align: center; font-size: 13px; color: #666; line-height: 1.8; }
+  .footer a { color: #3366cc; text-decoration: none; } .footer a:hover { text-decoration: underline; } .footer .copyright { color: #963; }
+  .separator-line { border: none; border-top: 1px dashed #ddd; margin: 3px 0; }
+
+  @media (max-width: 768px) { .sidebar-left { display: none; } .site-title { font-size: 24px; } .main-wrapper { border: none; } .replies-section,.reply-form { margin-left: 15px; } }
+</style>
+</head>
+<body>
+<div class="main-wrapper">
+
+  <!-- LOGIN -->
+  <div class="login-overlay" id="loginOverlay">
+    <div class="login-box">
+      <div class="dragonfly-icon">🪽</div>
+      <h2>★ 红蜻蜓聊天室 ★</h2>
+      <div class="login-sub">—— 心灵的港湾·友情的桥梁 ——</div>
+      <div style="color:#f60;font-size:11px;margin-bottom:10px"><span class="sparkle">✦</span> 全国高校最受欢迎的聊天室 <span class="sparkle">✦</span></div>
+      <div class="login-field"><label>☆ 您的昵称：</label><input type="text" id="loginNick" placeholder="请输入聊天昵称" maxlength="12"></div>
+      <div class="login-field"><label>☆ 性别：</label><select id="loginGender"><option value="male">♂ 帅哥</option><option value="female">♀ 美眉</option><option value="secret">？ 保密</option></select></div>
+      <div class="login-field"><label>☆ 选择房间：</label><select id="loginRoom"><option>【综合大厅】人气最旺！</option><option>【真情交友】缘分天注定</option><option>【灌水乐园】轻松一刻</option><option>【校园生活】同窗好友</option><option>【音乐心情】感受旋律</option></select></div>
+      <button class="login-enter" onclick="enterChat()">进 入 聊 天</button>
+      <div class="login-tips">本站最佳浏览：IE5.0+ / 800×600 / 16bit色<br><a href="javascript:void(0)">注册会员</a> | <a href="javascript:void(0)">忘记密码</a> | <a href="javascript:void(0)">聊天帮助</a></div>
+    </div>
+  </div>
+
+  <!-- BANNER -->
+  <div class="top-banner"><span class="dragonfly-icon">🪽</span><span class="site-title">★ 红蜻蜓聊天室 ★</span><div class="subtitle">—— 心灵的港湾 · 友情的桥梁 · 缘分从这里开始 ——</div></div>
+
+  <!-- MARQUEE -->
+  <div class="marquee-bar"><div class="marquee-text">★★★ 欢迎来到红蜻蜓聊天室！请遵守聊天室规则，文明聊天！ ★★★ <span>系统公告：</span>本周六晚8点举办"真心话大冒险"主题活动！ ★★★ 留言板已开放，快去写下你的心声！ ★★★</div></div>
+
+  <!-- NAV -->
+  <div class="nav-bar">
+    <button class="nav-btn active" id="navChat" onclick="switchTab('chat')">聊天大厅</button>
+    <button class="nav-btn" id="navGB" onclick="switchTab('gb')">留言板</button>
+    <button class="nav-btn" id="navSet" onclick="switchTab('set')">个人设置</button>
+    <button class="nav-btn" id="navProf" onclick="switchTab('prof')">查看资料</button>
+    <button class="nav-btn" id="navHelp" onclick="switchTab('help')">聊天帮助</button>
+    <button class="nav-btn" onclick="document.getElementById('loginOverlay').classList.remove('hidden');currentUser=null;">退出聊天</button>
+  </div>
+
+  <!-- ====== TAB: CHAT ====== -->
+  <div class="tab-page active" id="tabChat">
+    <div class="info-bar"><span class="room-name">当前房间：【<span id="currentRoom">综合大厅</span>】</span><span class="online-count">在线人数：<span class="counter-num" id="onlineCount">0</span> 人</span><span class="visitor-count">今日访客：<span class="counter-num" id="visitorCount">23861</span></span></div>
+    <div class="ad-bar"><span>友情链接：<a href="javascript:void(0)">碧海银沙</a> | <a href="javascript:void(0)">网易聊天室</a> | <a href="javascript:void(0)">新浪UC</a> | <a href="javascript:void(0)">腾讯QQ</a></span><span style="color:#933">红蜻蜓工作室</span></div>
+    <div class="content-area">
+      <div class="sidebar-left">
+        <div class="sidebar-section"><div class="sidebar-title">☆ 聊天房间 ☆</div><ul class="room-list" id="roomList"><li class="current">综合大厅 (48)</li><li>真情交友 (32)</li><li>灌水乐园 (25)</li><li>校园生活 (19)</li><li>音乐心情 (12)</li><li>VIP贵宾室 (5)</li><li>午夜悄悄话 (8)</li><li>游戏天地 (15)</li></ul></div>
+        <div class="sidebar-section"><div class="sidebar-title">☆ 在线用户 ☆</div><div id="userList"></div></div>
+      </div>
+      <div class="chat-main">
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="input-area">
+          <div class="input-toolbar">
+            <label>字色：</label>
+            <div class="color-options" id="colorOptions"><span class="color-dot selected" style="background:#0f0" data-color="#00ff00"></span><span class="color-dot" style="background:#ff0" data-color="#ffff00"></span><span class="color-dot" style="background:#f60" data-color="#ff6600"></span><span class="color-dot" style="background:#f39" data-color="#ff3399"></span><span class="color-dot" style="background:#0ff" data-color="#00ffff"></span><span class="color-dot" style="background:#fff" data-color="#ffffff"></span><span class="color-dot" style="background:#f00" data-color="#ff0000"></span><span class="color-dot" style="background:#c9f" data-color="#cc99ff"></span></div>
+            <label>字体：</label><select id="fontStyle"><option value="normal">普通</option><option value="bold">粗体</option><option value="italic">斜体</option><option value="rainbow">彩虹</option></select>
+            <button class="action-btn" onclick="document.getElementById('emotePanel').classList.toggle('show')">表情</button>
+            <button class="action-btn" onclick="chatSendAction()">动作</button>
+          </div>
+          <div class="emote-panel" id="emotePanel"><span class="emote-item" onclick="ie('😊')">😊</span><span class="emote-item" onclick="ie('😂')">😂</span><span class="emote-item" onclick="ie('😍')">😍</span><span class="emote-item" onclick="ie('😭')">😭</span><span class="emote-item" onclick="ie('😡')">😡</span><span class="emote-item" onclick="ie('🤗')">🤗</span><span class="emote-item" onclick="ie('😴')">😴</span><span class="emote-item" onclick="ie('🌹')">🌹</span><span class="emote-item" onclick="ie('💔')">💔</span><span class="emote-item" onclick="ie('👋')">👋</span><span class="emote-item" onclick="ie('👍')">👍</span><span class="emote-item" onclick="ie('🎵')">🎵</span><span class="emote-item" onclick="ie('☕')">☕</span><span class="emote-item" onclick="ie('🍻')">🍻</span><span class="emote-item" onclick="ie('💐')">💐</span><span class="emote-item" onclick="ie('✨')">✨</span></div>
+          <div class="input-row"><select id="targetUser"><option value="all">所有人</option></select><input class="chat-input" type="text" id="chatInput" placeholder="在这里输入聊天内容..." maxlength="200" onkeydown="if(event.key==='Enter')chatSend()"><button class="send-btn" onclick="chatSend()">发 送</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== TAB: GUESTBOOK ====== -->
+  <div class="tab-page" id="tabGB">
+    <div class="gb-title-bar"><h2>红蜻蜓留言板</h2><div class="gb-stats">共 <span class="num" id="totalCount">0</span> 条留言 ｜ 今日 <span class="num" id="todayCount">0</span> 条</div></div>
+    <div class="post-form-wrapper"><div class="form-title">发表新留言 —— 说出你的心声！</div><div class="form-body">
+      <div class="form-row"><label>昵 称：</label><input type="text" id="postNick" placeholder="你的昵称" maxlength="12"><label style="min-width:50px">性别：</label><select id="postGender"><option value="male">♂ 帅哥</option><option value="female">♀ 美眉</option><option value="secret">？ 保密</option></select></div>
+      <div class="form-row"><label>心 情：</label><div class="mood-select" id="moodSelect"><span class="mood-option selected" data-mood="😊">😊</span><span class="mood-option" data-mood="😢">😢</span><span class="mood-option" data-mood="😡">😡</span><span class="mood-option" data-mood="😍">😍</span><span class="mood-option" data-mood="🤔">🤔</span><span class="mood-option" data-mood="😴">😴</span><span class="mood-option" data-mood="🎵">🎵</span><span class="mood-option" data-mood="🌙">🌙</span><span class="mood-option" data-mood="☀️">☀️</span><span class="mood-option" data-mood="🌹">🌹</span></div></div>
+      <div class="form-row"><label>主 题：</label><input type="text" id="postSubject" placeholder="留言主题（可选）" maxlength="40" style="max-width:100%;flex:1"></div>
+      <div class="form-row"><label>内 容：</label><textarea id="postContent" placeholder="在这里写下你想说的话..." maxlength="500"></textarea></div>
+      <div class="form-actions"><button class="btn-submit" onclick="gbSubmit()">✎ 发表留言</button><button class="btn-reset" onclick="gbReset()">清空重写</button></div>
+    </div></div>
+    <div class="message-list" id="messageList"></div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+
+  <!-- ====== TAB: SETTINGS ====== -->
+  <div class="tab-page" id="tabSet">
+    <div class="gb-title-bar"><h2 style="color:#fc0">⚙ 个人设置</h2><div class="gb-stats">修改你的个人信息和聊天偏好</div></div>
+    <div style="padding:12px;">
+
+      <!-- Profile Settings -->
+      <div class="post-form-wrapper" style="margin:0 0 10px 0">
+        <div class="form-title">基本资料</div>
+        <div class="form-body">
+          <div class="form-row"><label>昵 称：</label><input type="text" id="setNick" maxlength="12" placeholder="输入新昵称"></div>
+          <div class="form-row"><label>性 别：</label><select id="setGender"><option value="male">♂ 帅哥</option><option value="female">♀ 美眉</option><option value="secret">？ 保密</option></select></div>
+          <div class="form-row"><label>年 龄：</label><select id="setAge"><option value="">请选择</option><option>16</option><option>17</option><option>18</option><option selected>19</option><option>20</option><option>21</option><option>22</option><option>23</option><option>24</option><option>25</option><option>26-30</option><option>30+</option></select></div>
+          <div class="form-row"><label>所在地：</label><input type="text" id="setCity" placeholder="例如：北京" maxlength="20" style="max-width:150px"></div>
+          <div class="form-row"><label>邮 箱：</label><input type="text" id="setEmail" placeholder="例如：zhangsan@263.net" maxlength="40" style="max-width:280px;flex:1"></div>
+          <div class="form-row"><label>OICQ：</label><input type="text" id="setOICQ" placeholder="你的OICQ号码" maxlength="12" style="max-width:150px"></div>
+          <div class="form-row"><label>个人签名：</label><input type="text" id="setSig" placeholder="一句话介绍自己..." maxlength="60" style="max-width:100%;flex:1"></div>
+        </div>
+      </div>
+
+      <!-- Avatar Selection -->
+      <div class="post-form-wrapper" style="margin:0 0 10px 0">
+        <div class="form-title">选择头像</div>
+        <div class="form-body">
+          <div id="avatarGrid" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+        </div>
+      </div>
+
+      <!-- Chat Preferences -->
+      <div class="post-form-wrapper" style="margin:0 0 10px 0">
+        <div class="form-title">聊天偏好</div>
+        <div class="form-body">
+          <div class="form-row"><label>默认字色：</label>
+            <div class="color-options" id="setColorOpts"><span class="color-dot selected" style="background:#0f0" data-color="#00ff00"></span><span class="color-dot" style="background:#ff0" data-color="#ffff00"></span><span class="color-dot" style="background:#f60" data-color="#ff6600"></span><span class="color-dot" style="background:#f39" data-color="#ff3399"></span><span class="color-dot" style="background:#0ff" data-color="#00ffff"></span><span class="color-dot" style="background:#fff" data-color="#ffffff"></span><span class="color-dot" style="background:#f00" data-color="#ff0000"></span><span class="color-dot" style="background:#c9f" data-color="#cc99ff"></span></div>
+          </div>
+          <div class="form-row"><label>默认字体：</label><select id="setFontDef"><option value="normal">普通</option><option value="bold">粗体</option><option value="italic">斜体</option></select></div>
+          <div class="form-row"><label>进入提示：</label>
+            <label style="min-width:auto;color:#336633;cursor:pointer"><input type="checkbox" id="setShowJoin" checked style="vertical-align:middle"> 显示用户进出消息</label>
+          </div>
+          <div class="form-row"><label>自动滚屏：</label>
+            <label style="min-width:auto;color:#336633;cursor:pointer"><input type="checkbox" id="setAutoScroll" checked style="vertical-align:middle"> 新消息时自动滚动到底部</label>
+          </div>
+          <div class="form-row"><label>提示音：</label>
+            <label style="min-width:auto;color:#336633;cursor:pointer"><input type="checkbox" id="setSound" style="vertical-align:middle"> 收到消息时播放声音</label>
+          </div>
+          <div class="form-row"><label>刷新频率：</label><select id="setRefresh"><option value="3">3秒</option><option value="5" selected>5秒</option><option value="10">10秒</option><option value="15">15秒</option></select> <span style="color:#666;font-size:13px">（频率越高越耗流量）</span></div>
+        </div>
+      </div>
+
+      <div style="text-align:center;padding:8px 0;">
+        <button class="btn-submit" onclick="saveSettings()">💾 保存设置</button>
+        <button class="btn-reset" onclick="resetSettings()" style="margin-left:6px">恢复默认</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== TAB: PROFILE ====== -->
+  <div class="tab-page" id="tabProf">
+    <div class="gb-title-bar"><h2 style="color:#fc0">👤 查看资料</h2><div class="gb-stats">点击在线用户查看TA的资料</div></div>
+    <div style="padding:12px;display:flex;gap:12px;flex-wrap:wrap;min-height:380px;">
+
+      <!-- User List Panel -->
+      <div class="post-form-wrapper" style="margin:0;width:160px;min-width:140px;flex-shrink:0;">
+        <div class="form-title">在线用户列表</div>
+        <div id="profUserList" style="padding:5px;max-height:360px;overflow-y:auto;"></div>
+      </div>
+
+      <!-- Profile Card -->
+      <div class="post-form-wrapper" style="margin:0;flex:1;min-width:240px;">
+        <div class="form-title" id="profCardTitle">个人名片</div>
+        <div id="profCard" style="padding:12px;">
+          <div style="text-align:center;color:#999;padding:30px 0;">← 请先从左侧选择一位用户</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== TAB: HELP ====== -->
+  <div class="tab-page" id="tabHelp">
+    <div class="gb-title-bar"><h2 style="color:#fc0">❓ 聊天帮助</h2><div class="gb-stats">新手必读·常见问题解答</div></div>
+    <div style="padding:12px;">
+
+      <div class="post-form-wrapper" style="margin:0 0 10px 0">
+        <div class="form-title">聊天室命令</div>
+        <div style="padding:14px 18px;color:#333;font-size:15px;line-height:2;">
+          <table style="width:100%;border-collapse:collapse;">
+            <tr style="border-bottom:1px dotted #ddd"><td style="color:#009900;font-family:Courier New;padding:5px 12px;white-space:nowrap">/help</td><td style="color:#555;padding:3px 8px">显示帮助命令列表</td></tr>
+            <tr style="border-bottom:1px dotted #ddd"><td style="color:#009900;font-family:Courier New;padding:5px 12px;white-space:nowrap">/clear</td><td style="color:#555;padding:3px 8px">清除当前屏幕上的所有聊天记录</td></tr>
+            <tr style="border-bottom:1px dotted #ddd"><td style="color:#cc6600;padding:5px 12px;white-space:nowrap">字色选择</td><td style="color:#555;padding:3px 8px">点击输入框上方的彩色方块切换文字颜色</td></tr>
+            <tr style="border-bottom:1px dotted #ddd"><td style="color:#cc6600;padding:5px 12px;white-space:nowrap">悄悄话</td><td style="color:#555;padding:3px 8px">在发送对象下拉框中选择特定用户，即可发送私密消息</td></tr>
+            <tr style="border-bottom:1px dotted #ddd"><td style="color:#cc6600;padding:5px 12px;white-space:nowrap">表情</td><td style="color:#555;padding:3px 8px">点击"表情"按钮选择表情符号插入聊天内容</td></tr>
+            <tr><td style="color:#cc6600;padding:5px 12px;white-space:nowrap">动作</td><td style="color:#555;padding:3px 8px">点击"动作"按钮向指定用户发送互动动作（送花、碰杯等）</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="post-form-wrapper" style="margin:0 0 10px 0">
+        <div class="form-title">聊天室规则 —— 请务必遵守！</div>
+        <div style="padding:14px 18px;color:#333;font-size:15px;line-height:2.2;">
+          <div style="color:#cc0000">★ 以下行为将被管理员踢出或封禁：</div>
+          <div style="padding-left:12px;">
+            <div><span style="color:#cc6600">1.</span> 发布色情、暴力、反动等违法内容</div>
+            <div><span style="color:#cc6600">2.</span> 恶意刷屏、灌水、发送广告信息</div>
+            <div><span style="color:#cc6600">3.</span> 辱骂、骚扰其他用户</div>
+            <div><span style="color:#cc6600">4.</span> 冒充管理员或其他用户</div>
+            <div><span style="color:#cc6600">5.</span> 散布谣言、恶意诋毁他人</div>
+          </div>
+          <div style="color:#009900;margin-top:6px">★ 我们鼓励：</div>
+          <div style="padding-left:12px;">
+            <div><span style="color:#cc6600">✓</span> 友善交流，互相尊重</div>
+            <div><span style="color:#cc6600">✓</span> 积极参与话题讨论和活动</div>
+            <div><span style="color:#cc6600">✓</span> 发现违规行为及时举报给管理员</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="post-form-wrapper" style="margin:0 0 10px 0">
+        <div class="form-title">常见问题 FAQ</div>
+        <div style="padding:14px 18px;color:#333;font-size:15px;line-height:2;">
+          <div style="color:#cc6600;font-weight:bold">Q：为什么我进不了聊天室？</div>
+          <div style="padding-left:12px;margin-bottom:6px">A：请确保您使用的是IE5.0以上版本的浏览器，分辨率建议设置为800×600。如果还是无法进入，可能是房间已满，请稍后再试或换一个房间。</div>
+          <div style="color:#cc6600;font-weight:bold">Q：怎么发悄悄话？</div>
+          <div style="padding-left:12px;margin-bottom:6px">A：在聊天输入框左侧的下拉菜单中选择要私聊的对象，发送的消息就只有TA能看到啦。也可以点击聊天区域中的用户昵称快速选择。</div>
+          <div style="color:#cc6600;font-weight:bold">Q：怎么当管理员？</div>
+          <div style="padding-left:12px;margin-bottom:6px">A：管理员由站长指定。如果您经常在线、热心帮助他人、遵守规则，可以发邮件到 <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0160656c686f41736465657360666e6f676d782f6f6475">[email&#160;protected]</a> 申请。</div>
+          <div style="color:#cc6600;font-weight:bold">Q：可以自建聊天房间吗？</div>
+          <div style="padding-left:12px;margin-bottom:6px">A：目前只有注册会员可以申请创建自定义房间，请先注册成为会员，然后发邮件给站长申请。</div>
+          <div style="color:#cc6600;font-weight:bold">Q：聊天记录会保存吗？</div>
+          <div style="padding-left:12px;margin-bottom:6px">A：聊天记录不会永久保存，退出后即消失。留言板的内容会保留。如果有重要信息请自行复制保存。</div>
+        </div>
+      </div>
+
+      <div class="post-form-wrapper" style="margin:0 0 10px 0">
+        <div class="form-title">关于红蜻蜓聊天室</div>
+        <div style="padding:14px 18px;color:#333;font-size:15px;line-height:2;">
+          <div>红蜻蜓聊天室创建于 <span style="color:#cc6600">2000年2月14日</span>（情人节），是由一群热爱互联网的大学生共同创办的在线交流平台。</div>
+          <div style="margin-top:4px">我们的宗旨是为全国高校学子提供一个 <span style="color:#cc6600">文明、友善、温馨</span> 的网上家园。</div>
+          <div style="margin-top:8px;border-top:1px dashed #ddd;padding-top:8px;">
+            <span style="color:#cc6600">技术支持：</span>RedDragonfly Studio<br>
+            <span style="color:#cc6600">站长邮箱：</span><span style="color:#3366cc"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="452421282c2b05372021213724222a2b23293c6b2b2031">[email&#160;protected]</a></span><br>
+            <span style="color:#cc6600">服务器：</span>中国教育网 · 北京节点<br>
+            <span style="color:#cc6600">系统版本：</span>RedDragonfly Chat v2.1<br>
+            <span style="color:#cc6600">最高在线：</span><span style="color:#009900">512人</span>（2001年3月16日）
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer"><div class="copyright">Copyright © 2000-2001 红蜻蜓聊天室 All Rights Reserved</div><hr class="separator-line"><div>站长信箱：<a href="javascript:void(0)"><span class="__cf_email__" data-cfemail="1f7e7b7276715f6d7a7b7b6d7e78707179736631717a6b">[email&#160;protected]</span></a> ｜ <a href="javascript:void(0)">申请链接</a> ｜ <a href="javascript:void(0)">聊天规则</a></div><div style="margin-top:3px">本站已稳定运行 <span style="color:#009900" id="runDays">396</span> 天 ｜ <span style="color:#cc6600">最高同时在线：512人</span></div><div style="margin-top:3px;color:#999">Powered by RedDragonfly v2.1 · 最佳浏览：IE5.0+ 800×600</div></div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="confirm-overlay hidden" id="confirmOverlay"><div class="confirm-box"><p id="confirmText"></p><div class="warning">删除后将无法恢复！</div><button class="confirm-yes" id="confirmYes">确定删除</button><button class="confirm-no" onclick="hideConfirm()">取 消</button></div></div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// === SHARED ===
+var currentUser = null, selectedColor = '#00ff00';
+function esc(t){var d=document.createElement('div');d.textContent=t;return d.innerHTML;}
+function showToast(m,ty){var t=document.getElementById('toast');t.textContent=m;t.className='toast show'+(ty?' '+ty:'');clearTimeout(t._t);t._t=setTimeout(function(){t.className='toast';},2500);}
+function switchTab(tab){
+  var tabs=['chat','gb','set','prof','help'];
+  var ids={chat:'tabChat',gb:'tabGB',set:'tabSet',prof:'tabProf',help:'tabHelp'};
+  var navs={chat:'navChat',gb:'navGB',set:'navSet',prof:'navProf',help:'navHelp'};
+  for(var i=0;i<tabs.length;i++){
+    var t=tabs[i];
+    document.getElementById(ids[t]).className='tab-page'+(tab===t?' active':'');
+    document.getElementById(navs[t]).className='nav-btn'+(tab===t?' active':'');
+  }
+  if(tab==='gb'){if(currentUser&&!document.getElementById('postNick').value){document.getElementById('postNick').value=currentUser.name;document.getElementById('postGender').value=currentUser.gender;}gbRender();}
+  if(tab==='set')initSettings();
+  if(tab==='prof')initProfile();
+}
+
+// === CHAT ===
+var bots=[{n:'飞翔的鱼',g:'male',c:'#66ccff'},{n:'薰衣草',g:'female',c:'#ff99cc'},{n:'追梦人',g:'male',c:'#ffcc00'},{n:'小雨点',g:'female',c:'#ff66ff'},{n:'天涯浪子',g:'male',c:'#00ffcc'},{n:'月光女孩',g:'female',c:'#ffaacc'},{n:'蓝色心情',g:'male',c:'#6699ff'},{n:'樱花雪',g:'female',c:'#ffccee'},{n:'风一样的少年',g:'male',c:'#ccff66'},{n:'紫丁香',g:'female',c:'#cc99ff'},{n:'独行侠',g:'male',c:'#ffaa33'},{n:'★管理员★',g:'male',c:'#ff0000',a:1}];
+var botMsgs=['大家好！今天天气不错呢～','有没有人想一起聊天呀？','刚下课，好累啊 😴','这首歌好好听！','哈哈哈，笑死我了 😂','有人在吗？好无聊啊～','谁来玩成语接龙？','明天就考试了 😭','刚去食堂吃了红烧肉，真香！','今晚的月色很美呢 🌙','有武汉的同学吗？','谁有周杰伦的新歌？mp3的','这学期选修课选了什么？','寝室的网速好慢啊...','今天在图书馆看到一个好漂亮的女生','有人用过OICQ吗？','昨晚通宵打CS了，困死了','请问谁有高数的答案？在线等','推荐一部电影：《花样年华》','各位晚安了 👋','互联网真是太神奇了！','新来的，请多多关照！','水木清华BBS今天上不去了','有人一起打星际吗？','谁知道个人主页怎么做？'];
+var cActs=['向 {t} 送了一朵玫瑰 🌹','对 {t} 抛了一个媚眼 😘','给 {t} 倒了一杯茶 ☕','和 {t} 碰杯 🍻','向 {t} 挥挥手 👋','对 {t} 微微一笑 😊','送给 {t} 一束花 💐','拍了拍 {t} 的肩膀'];
+
+function enterChat(){var nk=document.getElementById('loginNick').value.trim();if(!nk){alert('请输入您的昵称！');return;}currentUser={name:nk,gender:document.getElementById('loginGender').value,color:'#00ff00'};document.getElementById('loginOverlay').classList.add('hidden');var rm=document.getElementById('loginRoom');document.getElementById('currentRoom').textContent=rm.options[rm.selectedIndex].text.replace(/【|】.*/g,'');cUpdateUsers();cUpdateCount();cSys('欢迎 <span class="highlight">'+esc(nk)+'</span> 进入聊天室！大家鼓掌欢迎！👏👏👏');cSys('温馨提示：请遵守聊天室公约，文明聊天。输入 /help 查看帮助。');setTimeout(cStartBots,2000);}
+
+function cSys(h){var c=document.getElementById('chatMessages'),d=document.createElement('div');d.className='msg msg-sys';d.innerHTML='[系统] '+h;c.appendChild(d);c.scrollTop=c.scrollHeight;}
+function cMsg(nm,tx,co,st,wh,tg){var c=document.getElementById('chatMessages'),d=document.createElement('div');d.className='msg';var now=new Date(),ts=[now.getHours(),now.getMinutes(),now.getSeconds()].map(function(n){return String(n).padStart(2,'0');}).join(':');var cls=st==='rainbow'?'rainbow-text':'',sty='color:'+co+';';if(st==='bold')sty+='font-weight:bold;';if(st==='italic')sty+='font-style:italic;';var wl=wh?'<span class="whisper">[悄悄话→'+tg+']</span> ':'';var nc=co;for(var i=0;i<bots.length;i++)if(bots[i].n===nm){nc=bots[i].c;break;}d.innerHTML='<span class="msg-time">['+ts+']</span> '+wl+'<span class="msg-name" style="color:'+nc+'" onclick="cReply(\''+nm.replace(/'/g,"\\'")+'\')">'+nm+'</span> 说：<span class="'+cls+'" style="'+sty+'">'+esc(tx)+'</span>';c.appendChild(d);c.scrollTop=c.scrollHeight;}
+function cAct(nm,act){var c=document.getElementById('chatMessages'),d=document.createElement('div');d.className='msg msg-action';var now=new Date();d.innerHTML='<span class="msg-time">['+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+']</span> ★ '+nm+' '+act;c.appendChild(d);c.scrollTop=c.scrollHeight;}
+function chatSend(){if(!currentUser)return;var inp=document.getElementById('chatInput'),tx=inp.value.trim();if(!tx)return;var st=document.getElementById('fontStyle').value,tg=document.getElementById('targetUser').value;if(tx==='/help'){cSys('命令帮助：/help 显示帮助 ｜ /clear 清屏');inp.value='';return;}if(tx==='/clear'){document.getElementById('chatMessages').innerHTML='';cSys('屏幕已清除。');inp.value='';return;}cMsg(currentUser.name,tx,selectedColor,st,tg!=='all',tg==='all'?'':tg);inp.value='';if(Math.random()<.4){var b=bots[Math.floor(Math.random()*(bots.length-1))];setTimeout(function(){var rr=['哈哈，说得好！',currentUser.name+'，你好呀！','同意～ +1','嗯嗯，有道理','😂😂','真的吗？','继续继续～','顶一下！',currentUser.name+' 说得太对了！','路过，打个酱油～'];cMsg(b.n,rr[Math.floor(Math.random()*rr.length)],b.c,'normal',false,'');},1500+Math.random()*3000);}}
+function chatSendAction(){if(!currentUser)return;var tg=document.getElementById('targetUser').value,tn=tg==='all'?'大家':tg;cAct(currentUser.name,cActs[Math.floor(Math.random()*cActs.length)].replace('{t}',tn));}
+function cReply(nm){if(!currentUser||nm===currentUser.name)return;var sel=document.getElementById('targetUser'),f=false;for(var i=0;i<sel.options.length;i++)if(sel.options[i].value===nm){f=true;break;}if(!f){var o=document.createElement('option');o.value=nm;o.textContent=nm;sel.appendChild(o);}sel.value=nm;document.getElementById('chatInput').focus();}
+function ie(e){document.getElementById('chatInput').value+=e;document.getElementById('chatInput').focus();}
+function cUpdateUsers(){var list=document.getElementById('userList'),h='';if(currentUser){h+='<div class="user-list-item '+(currentUser.gender==='female'?'female':'male')+'" style="color:#cc6600;font-weight:bold">'+currentUser.name+'(我)</div>';}var sh=[].concat(bots).sort(function(){return Math.random()-.5;}).slice(0,8+Math.floor(Math.random()*4));for(var i=0;i<sh.length;i++){var u=sh[i];h+='<div class="user-list-item '+(u.a?'admin':u.g)+'" onclick="cReply(\''+u.n.replace(/'/g,"\\'")+'\')">'+u.n+'</div>';}list.innerHTML=h;var sel=document.getElementById('targetUser');sel.innerHTML='<option value="all">所有人</option>';for(var i=0;i<sh.length;i++){var o=document.createElement('option');o.value=sh[i].n;o.textContent=sh[i].n;sel.appendChild(o);}}
+function cUpdateCount(){document.getElementById('onlineCount').textContent=38+Math.floor(Math.random()*20);}
+document.getElementById('colorOptions').addEventListener('click',function(e){if(e.target.classList.contains('color-dot')){this.querySelectorAll('.color-dot').forEach(function(d){d.classList.remove('selected');});e.target.classList.add('selected');selectedColor=e.target.dataset.color;}});
+document.getElementById('roomList').addEventListener('click',function(e){var li=e.target.closest('li');if(!li)return;document.querySelectorAll('.room-list li').forEach(function(l){l.classList.remove('current');});li.classList.add('current');document.getElementById('currentRoom').textContent=li.textContent.replace(/\s*\(\d+\)/,'');if(currentUser)cSys('您已进入【'+li.textContent.replace(/\s*\(\d+\)/,'')+'】房间');});
+function cStartBots(){if(!currentUser)return;var init=[{u:bots[11],m:'欢迎各位来到红蜻蜓聊天室！'},{u:bots[0],m:'大家好啊！今天好热闹'},{u:bots[1],m:'嗨～有新朋友来啦？'},{u:bots[3],m:'欢迎欢迎！🎉'}];init.forEach(function(x,i){setTimeout(function(){cMsg(x.u.n,x.m,x.u.c,'normal',false,'');},500+i*600);});function tick(){if(!currentUser)return;var b=bots[Math.floor(Math.random()*(bots.length-1))];cMsg(b.n,botMsgs[Math.floor(Math.random()*botMsgs.length)],b.c,'normal',false,'');if(Math.random()<.15){var a=bots[Math.floor(Math.random()*(bots.length-1))],t=bots[Math.floor(Math.random()*(bots.length-1))];if(a.n!==t.n)setTimeout(function(){cAct(a.n,cActs[Math.floor(Math.random()*cActs.length)].replace('{t}',t.n));},800);}if(Math.random()<.1){var ns=['阳光少年','梦里花落','风之子','雨后彩虹','星辰大海'];cSys('<span class="highlight">'+ns[Math.floor(Math.random()*ns.length)]+'</span> 进入了聊天室');cUpdateCount();}if(Math.random()<.08){cSys('过客匆匆 离开了聊天室');cUpdateCount();}setTimeout(tick,3000+Math.random()*8000);}setTimeout(tick,5000);}
+setInterval(function(){var el=document.getElementById('visitorCount');el.textContent=parseInt(el.textContent)+Math.floor(Math.random()*3);},15000);
+
+// === GUESTBOOK ===
+var gbMsgs=[
+  {id:1,nk:'★管理员★',g:'male',mo:'😊',su:'欢迎来到红蜻蜓留言板！',co:'各位朋友大家好！\n\n留言板正式开放！欢迎畅所欲言。\n\n规则：1.文明用语 2.禁止广告 3.禁止灌水\n\n祝大家玩得开心！🎉',ti:'2001-03-15 10:00:00',ip:'192.168.1.*',re:[{id:50,nk:'飞翔的鱼',g:'male',co:'沙发！支持管理员！',ti:'2001-03-15 10:05:32'},{id:51,nk:'薰衣草',g:'female',co:'板凳～终于有留言板了 😊',ti:'2001-03-15 10:12:18'},{id:52,nk:'追梦人',g:'male',co:'地板！红蜻蜓越来越好了！',ti:'2001-03-15 11:03:45'}]},
+  {id:2,nk:'月光女孩',g:'female',mo:'🌙',su:'今晚的月色好美',co:'刚从图书馆出来，抬头看见明月。\n\n突然很想念远方的朋友们。\n\n"但愿人长久，千里共婵娟" 🌙',ti:'2001-03-18 22:35:12',ip:'210.34.5.*',re:[{id:53,nk:'天涯浪子',g:'male',co:'写得真美！我也在看月亮呢～',ti:'2001-03-18 22:41:07'},{id:54,nk:'小雨点',g:'female',co:'月光女孩好有诗意！交个朋友吧 😊',ti:'2001-03-18 23:05:30'}]},
+  {id:3,nk:'风一样的少年',g:'male',mo:'🎵',su:'推荐一首歌：《追梦人》',co:'最近一直在听凤飞飞的《追梦人》！\n\n每次听到都热血沸腾。有同感的举手！✋\n\n（mp3发到 wind_boy@263.net）',ti:'2001-03-20 16:22:45',ip:'202.112.7.*',re:[{id:55,nk:'紫丁香',g:'female',co:'好听！我有mp3，晚上发给你',ti:'2001-03-20 17:10:22'}]},
+  {id:4,nk:'蓝色心情',g:'male',mo:'😢',su:'考试没考好...',co:'高数挂了...55555\n\n感觉对不起爸妈。\n\n有同病相怜的朋友吗？',ti:'2001-03-22 19:45:33',ip:'61.144.23.*',re:[{id:56,nk:'樱花雪',g:'female',co:'别难过！下次一定能考好！加油💪',ti:'2001-03-22 20:01:15'},{id:57,nk:'飞翔的鱼',g:'male',co:'兄弟我也挂了...补考一起加油！',ti:'2001-03-22 20:15:40'},{id:58,nk:'独行侠',g:'male',co:'推荐张老师的高数笔记，网上有整理',ti:'2001-03-22 21:30:08'}]},
+  {id:5,nk:'樱花雪',g:'female',mo:'🌹',su:'第一次来红蜻蜓！',co:'大家好！我是新来的～\n\n听同学说这里很好玩，今天终于来了！\n\n希望认识更多朋友 😊',ti:'2001-03-25 14:18:55',ip:'159.226.4.*',re:[{id:59,nk:'追梦人',g:'male',co:'欢迎！你会喜欢这里的！',ti:'2001-03-25 14:25:10'},{id:60,nk:'月光女孩',g:'female',co:'欢迎新朋友！最近在看《挪威的森林》',ti:'2001-03-25 14:32:44'}]},
+  {id:6,nk:'追梦人',g:'male',mo:'🤔',su:'大家毕业后想做什么？',co:'还有一年就毕业了，越来越迷茫...\n\n考研还是找工作？\n\n听说IT行业很火，有建议吗？',ti:'2001-03-28 09:12:30',ip:'211.68.32.*',re:[]},
+],gbId=200,gbPg=1,gbPP=5;
+var delId=null,delType=null,delPar=null;
+
+function gbTs(){var d=new Date(),p=function(n){return String(n).padStart(2,'0');};return '2001-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());}
+function gbIp(){return Math.floor(Math.random()*200+10)+'.'+Math.floor(Math.random()*255)+'.'+Math.floor(Math.random()*255)+'.*';}
+function gbTP(){return Math.max(1,Math.ceil(gbMsgs.length/gbPP));}
+
+function gbRender(){
+  document.getElementById('totalCount').textContent=gbMsgs.length;
+  document.getElementById('todayCount').textContent=Math.min(gbMsgs.length,3);
+  // pagination
+  var tp=gbTP(),pel=document.getElementById('pagination');
+  if(tp<=1){pel.innerHTML='<span class="page-label">— 共1页 —</span>';}else{var ph='<span class="page-label">页码：</span>';if(gbPg>1)ph+='<span class="page-num" onclick="gbGo('+(gbPg-1)+')">上一页</span>';for(var i=1;i<=tp;i++)ph+=i===gbPg?'<span class="page-current">['+i+']</span>':'<span class="page-num" onclick="gbGo('+i+')">'+i+'</span>';if(gbPg<tp)ph+='<span class="page-num" onclick="gbGo('+(gbPg+1)+')">下一页</span>';ph+='<span class="page-label"> 共'+tp+'页</span>';pel.innerHTML=ph;}
+  // messages
+  var list=document.getElementById('messageList');
+  if(!gbMsgs.length){list.innerHTML='<div class="empty-state"><span class="big-icon">📭</span>还没有人留言呢...<br>快来写下第一条留言吧！</div>';return;}
+  var sorted=gbMsgs.slice().reverse(),start=(gbPg-1)*gbPP,items=sorted.slice(start,start+gbPP),html='';
+  items.forEach(function(m,idx){
+    var floor=gbMsgs.length-start-idx,rc=m.re?m.re.length:0;
+    var rh='';
+    if(m.re&&m.re.length){rh='<div class="replies-section">';m.re.forEach(function(r,i){rh+='<div class="reply-card" id="gbr-'+r.id+'"><div class="reply-header"><div class="reply-header-left"><span class="reply-tag">回复#'+(i+1)+'</span><span class="reply-author '+(r.g||'secret')+'">'+esc(r.nk)+'</span></div><div style="display:flex;align-items:center;gap:6px"><span class="reply-time">'+r.ti+'</span><button class="gb-action-btn delete" onclick="gbDelR('+m.id+','+r.id+')">×</button></div></div><div class="reply-body">'+esc(r.co)+'</div></div>';});rh+='</div>';}
+    html+='<div class="gb-card" id="gbm-'+m.id+'"><div class="gb-header"><div class="gb-header-left"><span class="gb-floor">#'+floor+'楼</span><span class="gb-author '+m.g+'">'+esc(m.nk)+'</span><span class="gb-mood">'+(m.mo||'')+'</span></div><span class="gb-time">'+m.ti+'</span></div>'+(m.su?'<div class="gb-subject">'+esc(m.su)+'</div>':'')+'<div class="gb-body">'+esc(m.co)+'</div><div class="gb-footer"><div class="gb-footer-left">IP: '+(m.ip||'未知')+' ｜ 回复: '+rc+'</div><div class="gb-actions"><button class="gb-action-btn" onclick="gbTR('+m.id+')">回复</button><button class="gb-action-btn delete" onclick="gbDelP('+m.id+')">删除</button></div></div></div>'+rh+'<div class="reply-form" id="gbrf-'+m.id+'"><div class="reply-form-title">回复 <span style="color:#fc0">'+esc(m.nk)+'</span> 的留言</div><div class="rfr"><label>昵称：</label><input type="text" id="gbrn-'+m.id+'" placeholder="你的昵称" maxlength="12"><label style="min-width:40px">性别：</label><select id="gbrg-'+m.id+'"><option value="male">♂ 帅哥</option><option value="female">♀ 美眉</option><option value="secret">？ 保密</option></select></div><div class="rfr"><label>内容：</label><textarea id="gbrc-'+m.id+'" placeholder="写下你的回复..." maxlength="300"></textarea></div><div style="display:flex;gap:5px;justify-content:flex-end;margin-top:4px"><button class="reply-submit-btn" onclick="gbSR('+m.id+')">提交回复</button><button class="reply-cancel-btn" onclick="gbTR('+m.id+')">取消</button></div></div>';
+  });
+  list.innerHTML=html;
+}
+
+function gbGo(p){gbPg=p;gbRender();document.querySelector('.message-list').scrollIntoView({behavior:'smooth'});}
+
+function gbSubmit(){
+  var nk=document.getElementById('postNick').value.trim(),g=document.getElementById('postGender').value,su=document.getElementById('postSubject').value.trim(),co=document.getElementById('postContent').value.trim(),me=document.querySelector('.mood-option.selected'),mo=me?me.dataset.mood:'😊';
+  if(!nk){showToast('请输入您的昵称！','error');return;}if(!co){showToast('留言内容不能为空！','error');return;}
+  var id=++gbId;gbMsgs.push({id:id,nk:nk,g:g,mo:mo,su:su,co:co,ti:gbTs(),ip:gbIp(),re:[]});gbPg=1;gbRender();
+  document.getElementById('postSubject').value='';document.getElementById('postContent').value='';
+  showToast('留言发表成功！✎','success');document.querySelector('.message-list').scrollIntoView({behavior:'smooth'});
+  setTimeout(function(){var el=document.getElementById('gbm-'+id);if(el)el.classList.add('highlight-new');},100);
+}
+
+function gbReset(){document.getElementById('postNick').value='';document.getElementById('postSubject').value='';document.getElementById('postContent').value='';document.querySelectorAll('.mood-option').forEach(function(m){m.classList.remove('selected');});document.querySelector('.mood-option').classList.add('selected');}
+
+function gbTR(id){document.querySelectorAll('.reply-form.show').forEach(function(f){if(f.id!=='gbrf-'+id)f.classList.remove('show');});var form=document.getElementById('gbrf-'+id);form.classList.toggle('show');if(form.classList.contains('show')){var mn=document.getElementById('postNick').value.trim(),mg=document.getElementById('postGender').value;if(mn){document.getElementById('gbrn-'+id).value=mn;document.getElementById('gbrg-'+id).value=mg;}document.getElementById('gbrc-'+id).focus();}}
+
+function gbSR(id){var nk=document.getElementById('gbrn-'+id).value.trim(),g=document.getElementById('gbrg-'+id).value,co=document.getElementById('gbrc-'+id).value.trim();if(!nk){showToast('请输入昵称！','error');return;}if(!co){showToast('回复不能为空！','error');return;}var msg=null;for(var i=0;i<gbMsgs.length;i++)if(gbMsgs[i].id===id){msg=gbMsgs[i];break;}if(!msg)return;var rid=++gbId;msg.re.push({id:rid,nk:nk,g:g,co:co,ti:gbTs()});gbRender();showToast('回复成功！✓','success');setTimeout(function(){var el=document.getElementById('gbr-'+rid);if(el)el.scrollIntoView({behavior:'smooth',block:'center'});},150);}
+
+function gbDelP(id){delId=id;delType='post';delPar=null;document.getElementById('confirmText').textContent='确定要删除这条留言吗？（回复也将一并删除）';document.getElementById('confirmOverlay').classList.remove('hidden');}
+function gbDelR(pid,rid){delId=rid;delType='reply';delPar=pid;document.getElementById('confirmText').textContent='确定要删除这条回复吗？';document.getElementById('confirmOverlay').classList.remove('hidden');}
+function hideConfirm(){document.getElementById('confirmOverlay').classList.add('hidden');delId=null;delType=null;delPar=null;}
+document.getElementById('confirmYes').onclick=function(){if(delType==='post'){gbMsgs=gbMsgs.filter(function(m){return m.id!==delId;});if(gbPg>gbTP())gbPg=gbTP();showToast('留言已删除','success');}else if(delType==='reply'){for(var i=0;i<gbMsgs.length;i++)if(gbMsgs[i].id===delPar){gbMsgs[i].re=gbMsgs[i].re.filter(function(r){return r.id!==delId;});break;}showToast('回复已删除','success');}hideConfirm();gbRender();};
+document.getElementById('moodSelect').addEventListener('click',function(e){var o=e.target.closest('.mood-option');if(!o)return;document.querySelectorAll('.mood-option').forEach(function(m){m.classList.remove('selected');});o.classList.add('selected');});
+document.getElementById('postContent').addEventListener('keydown',function(e){if(e.ctrlKey&&e.key==='Enter')gbSubmit();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')hideConfirm();});
+
+// === SETTINGS ===
+var avatars=['😎','🤠','👨‍🎓','👩‍🎓','🧑‍💻','👨‍🎤','👩‍🎤','🦸','🦹','🧙','🧚','🧛','👼','🤴','👸','🎅','🐱','🐶','🐼','🦊','🐰','🦋','🐬','🦄','🌸','🍀','⭐','🌈','🎮','🎵','📚','☕'];
+var userSettings={avatar:'😎',city:'',email:'',oicq:'',sig:'',age:''};
+
+function initSettings(){
+  if(!currentUser)return;
+  document.getElementById('setNick').value=currentUser.name;
+  document.getElementById('setGender').value=currentUser.gender;
+  document.getElementById('setCity').value=userSettings.city;
+  document.getElementById('setEmail').value=userSettings.email;
+  document.getElementById('setOICQ').value=userSettings.oicq;
+  document.getElementById('setSig').value=userSettings.sig;
+  document.getElementById('setAge').value=userSettings.age;
+  // avatars
+  var ag=document.getElementById('avatarGrid');
+  ag.innerHTML='';
+  for(var i=0;i<avatars.length;i++){
+    var sp=document.createElement('span');
+    sp.textContent=avatars[i];
+    sp.style.cssText='font-size:24px;padding:4px 6px;cursor:pointer;border:2px solid '+(avatars[i]===userSettings.avatar?'#f60':'transparent')+';background:'+(avatars[i]===userSettings.avatar?'#fff0e0':'transparent');
+    sp.dataset.av=avatars[i];
+    sp.onclick=function(){
+      document.querySelectorAll('#avatarGrid span').forEach(function(s){s.style.borderColor='transparent';s.style.background='transparent';});
+      this.style.borderColor='#f60';this.style.background='#fff0e0';
+      userSettings.avatar=this.dataset.av;
+    };
+    ag.appendChild(sp);
+  }
+  // settings color picker
+  document.getElementById('setColorOpts').onclick=function(e){
+    if(e.target.classList.contains('color-dot')){
+      this.querySelectorAll('.color-dot').forEach(function(d){d.classList.remove('selected');});
+      e.target.classList.add('selected');
+    }
+  };
+}
+
+function saveSettings(){
+  if(!currentUser){showToast('请先登录！','error');return;}
+  var nk=document.getElementById('setNick').value.trim();
+  if(!nk){showToast('昵称不能为空！','error');return;}
+  var oldName=currentUser.name;
+  currentUser.name=nk;
+  currentUser.gender=document.getElementById('setGender').value;
+  userSettings.city=document.getElementById('setCity').value.trim();
+  userSettings.email=document.getElementById('setEmail').value.trim();
+  userSettings.oicq=document.getElementById('setOICQ').value.trim();
+  userSettings.sig=document.getElementById('setSig').value.trim();
+  userSettings.age=document.getElementById('setAge').value;
+  // apply default color
+  var selDot=document.querySelector('#setColorOpts .color-dot.selected');
+  if(selDot)selectedColor=selDot.dataset.color;
+  // update chat color picker to match
+  document.querySelectorAll('#colorOptions .color-dot').forEach(function(d){d.classList.toggle('selected',d.dataset.color===selectedColor);});
+  document.getElementById('fontStyle').value=document.getElementById('setFontDef').value;
+  cUpdateUsers();
+  if(oldName!==nk)cSys('<span class="highlight">'+esc(oldName)+'</span> 更名为 <span class="highlight">'+esc(nk)+'</span>');
+  showToast('设置已保存！','success');
+}
+
+function resetSettings(){
+  document.getElementById('setCity').value='';document.getElementById('setEmail').value='';document.getElementById('setOICQ').value='';document.getElementById('setSig').value='';document.getElementById('setAge').value='';
+  document.querySelectorAll('#setColorOpts .color-dot').forEach(function(d,i){d.classList.toggle('selected',i===0);});
+  document.getElementById('setFontDef').value='normal';
+  document.getElementById('setShowJoin').checked=true;document.getElementById('setAutoScroll').checked=true;document.getElementById('setSound').checked=false;document.getElementById('setRefresh').value='5';
+  userSettings={avatar:'😎',city:'',email:'',oicq:'',sig:'',age:''};
+  initSettings();
+  showToast('已恢复默认设置','success');
+}
+
+// === PROFILE ===
+var botProfiles=[
+  {n:'飞翔的鱼',g:'male',av:'🐬',city:'武汉',sig:'海阔凭鱼跃，天高任鸟飞',age:'21',oicq:'23456789',email:'fly_fish@263.net',reg:'2000-05-12',login:86},
+  {n:'薰衣草',g:'female',av:'🌸',city:'杭州',sig:'紫色的梦，淡淡的香～',age:'20',oicq:'34567890',email:'lavender@sina.com',reg:'2000-06-20',login:72},
+  {n:'追梦人',g:'male',av:'⭐',city:'北京',sig:'追逐梦想的路上，我们都是勇者',age:'22',oicq:'12345678',email:'dreamer@163.com',reg:'2000-03-01',login:128},
+  {n:'小雨点',g:'female',av:'🦋',city:'上海',sig:'下雨天，真好～',age:'19',oicq:'45678901',email:'rain_drop@sohu.com',reg:'2000-09-15',login:55},
+  {n:'天涯浪子',g:'male',av:'🤠',city:'成都',sig:'四海为家，浪迹天涯',age:'23',oicq:'56789012',email:'wanderer@21cn.com',reg:'2000-04-08',login:95},
+  {n:'月光女孩',g:'female',av:'🌈',city:'南京',sig:'月光下，我在想你',age:'20',oicq:'67890123',email:'moon_girl@263.net',reg:'2000-07-22',login:64},
+  {n:'蓝色心情',g:'male',av:'🎵',city:'广州',sig:'音乐是灵魂的语言',age:'21',oicq:'78901234',email:'blue_mood@163.com',reg:'2000-08-18',login:48},
+  {n:'樱花雪',g:'female',av:'🌸',city:'大连',sig:'让青春绽放如樱花 🌸',age:'19',oicq:'89012345',email:'sakura@sina.com',reg:'2001-03-01',login:12},
+  {n:'风一样的少年',g:'male',av:'🎮',city:'西安',sig:'生命不止，游戏不息',age:'20',oicq:'90123456',email:'wind_boy@263.net',reg:'2000-10-05',login:82},
+  {n:'紫丁香',g:'female',av:'💐',city:'昆明',sig:'春城的丁香花开了',age:'21',oicq:'01234567',email:'lilac@21cn.com',reg:'2000-11-11',login:39},
+  {n:'独行侠',g:'male',av:'😎',city:'深圳',sig:'一个人，一条路，一个世界',age:'24',oicq:'11223344',email:'lone@163.com',reg:'2000-02-28',login:145},
+  {n:'★管理员★',g:'male',av:'👼',city:'北京',sig:'红蜻蜓聊天室管理员，有问题请找我',age:'25',oicq:'10000001',email:'admin@reddragonfly.net',reg:'2000-02-14',login:365},
+];
+
+function initProfile(){
+  var list=document.getElementById('profUserList'),h='';
+  if(currentUser){
+    h+='<div class="user-list-item '+(currentUser.gender==='female'?'female':'male')+'" style="color:#ff0;font-weight:bold;cursor:pointer" onclick="showProfile(-1)">'+currentUser.name+'(我)</div>';
+  }
+  for(var i=0;i<bots.length;i++){
+    var u=bots[i];
+    h+='<div class="user-list-item '+(u.a?'admin':u.g)+'" style="cursor:pointer" onclick="showProfile('+i+')">'+u.n+'</div>';
+  }
+  list.innerHTML=h;
+}
+
+function showProfile(idx){
+  var p,isMe=idx===-1;
+  if(isMe){
+    p={n:currentUser.name,g:currentUser.gender,av:userSettings.avatar,city:userSettings.city||'未填写',sig:userSettings.sig||'这个人很懒，什么都没写～',age:userSettings.age||'保密',oicq:userSettings.oicq||'未填写',email:userSettings.email||'未填写',reg:'2001-03-28',login:1};
+  } else {
+    p=botProfiles[idx]||{n:bots[idx].n,g:bots[idx].g,av:'😊',city:'未知',sig:'',age:'?',oicq:'',email:'',reg:'2000-01-01',login:0};
+  }
+  var gLabel=p.g==='male'?'♂ 男':p.g==='female'?'♀ 女':'？ 保密';
+  var gColor=p.g==='male'?'#6cf':p.g==='female'?'#f9c':'#ccc';
+  document.getElementById('profCardTitle').innerHTML='个人名片 —— '+esc(p.n);
+  document.getElementById('profCard').innerHTML=
+    '<div style="display:flex;gap:15px;align-items:flex-start;flex-wrap:wrap">'+
+    '<div style="text-align:center;min-width:80px">'+
+      '<div style="font-size:56px;background:#fff8f0;border:2px groove #ccc;padding:8px 12px;display:inline-block">'+p.av+'</div>'+
+      '<div style="color:'+gColor+';font-weight:bold;font-size:16px;margin-top:6px">'+esc(p.n)+'</div>'+
+      '<div style="color:#666;font-size:13px">'+gLabel+'</div>'+
+    '</div>'+
+    '<div style="flex:1;min-width:200px">'+
+      '<table style="width:100%;border-collapse:collapse;font-size:12px">'+
+        '<tr style="border-bottom:1px dotted #ddd"><td style="color:#996633;padding:4px 8px;white-space:nowrap;width:70px">年 龄</td><td style="color:#555;padding:4px 8px">'+esc(p.age)+'</td></tr>'+
+        '<tr style="border-bottom:1px dotted #ddd"><td style="color:#996633;padding:4px 8px">所在地</td><td style="color:#555;padding:4px 8px">'+esc(p.city)+'</td></tr>'+
+        '<tr style="border-bottom:1px dotted #ddd"><td style="color:#996633;padding:4px 8px">OICQ</td><td style="color:#009900;padding:4px 8px;font-family:Courier New">'+esc(p.oicq)+'</td></tr>'+
+        '<tr style="border-bottom:1px dotted #ddd"><td style="color:#996633;padding:4px 8px">邮 箱</td><td style="color:#3366cc;padding:4px 8px">'+esc(p.email)+'</td></tr>'+
+        '<tr style="border-bottom:1px dotted #ddd"><td style="color:#996633;padding:4px 8px">注册日期</td><td style="color:#888;padding:4px 8px">'+p.reg+'</td></tr>'+
+        '<tr style="border-bottom:1px dotted #ddd"><td style="color:#996633;padding:4px 8px">登录次数</td><td style="color:#555;padding:4px 8px">'+p.login+' 次</td></tr>'+
+        '<tr><td style="color:#996633;padding:4px 8px">个性签名</td><td style="color:#996633;padding:4px 8px;font-style:italic">"'+esc(p.sig)+'"</td></tr>'+
+      '</table>'+
+      (isMe?'<div style="margin-top:10px;text-align:right"><button class="gb-action-btn" onclick="switchTab(\'set\')" style="padding:3px 12px">✎ 编辑资料</button></div>':
+       '<div style="margin-top:10px;text-align:right"><button class="gb-action-btn" onclick="cReply(\''+p.n.replace(/'/g,"\\'")+'\');switchTab(\'chat\')" style="padding:3px 12px">💬 和TA聊天</button></div>')+
+    '</div></div>';
+}
+
+// Init
+document.getElementById('runDays').textContent=Math.floor((new Date(2001,5,15)-new Date(2000,1,14))/864e5);
+gbRender();
+</script>
+</body>
+</html>

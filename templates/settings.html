@@ -1,0 +1,100 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>★红蜻蜓聊天室★ - 欢迎您的到来！</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="main-wrapper">
+<!-- BANNER -->
+  <div class="top-banner"><span class="dragonfly-icon">🪽</span><span class="site-title">★ 红蜻蜓聊天室 ★</span><div class="subtitle">—— 心灵的港湾 · 友情的桥梁 · 缘分从这里开始 ——</div></div>
+
+  <!-- MARQUEE -->
+  <div class="marquee-bar"><div class="marquee-text">★★★ 欢迎来到红蜻蜓聊天室！请遵守聊天室规则，文明聊天！ ★★★ <span>系统公告：</span>本周六晚8点举办"真心话大冒险"主题活动！ ★★★ 留言板已开放，快去写下你的心声！ ★★★</div></div>
+
+  <!-- NAV -->
+  <div class="nav-bar">
+    <a class="nav-btn" href="/">聊天大厅</a>
+    <a class="nav-btn" href="/guestbook">留言板</a>
+    <a class="nav-btn active" href="/settings">个人设置</a>
+    <a class="nav-btn" href="/profile">查看资料</a>
+    <a class="nav-btn" href="/help">聊天帮助</a>    <a class="nav-btn" id="adminLink" href="/admin" style="display:none">后台管理</a>
+    <a class="nav-btn" href="/logout">退出聊天  </a>
+  </div>
+
+  <!-- ====== TAB: SETTINGS ====== -->
+  <div class="tab-page active" id="tabSet">
+    <div class="gb-title-bar"><h2 style="color:#fc0">⚙ 个人设置</h2><div class="gb-stats">修改你的个人信息和聊天偏好</div></div>
+    <div style="padding:12px;">
+
+      <!-- Profile Settings -->
+      <div class="post-form-wrapper" style="margin:0 0 10px 0">
+        <div class="form-title">基本资料</div>
+        <div class="form-body">
+          <div class="form-row"><label>昵 称：</label><input type="text" id="setNick" maxlength="12" placeholder="输入新昵称"></div>
+          <div class="form-row"><label>性 别：</label><select id="setGender"><option value="male">♂ 帅哥</option><option value="female">♀ 美眉</option><option value="secret">？ 保密</option></select></div>
+          <div class="form-row"><label>年 龄：</label><select id="setAge"><option value="">请选择</option><option>16</option><option>17</option><option>18</option><option selected>19</option><option>20</option><option>21</option><option>22</option><option>23</option><option>24</option><option>25</option><option>26-30</option><option>30+</option></select></div>
+          <div class="form-row"><label>所在地：</label><input type="text" id="setCity" placeholder="例如：北京" maxlength="20" style="max-width:150px"></div>
+          <div class="form-row"><label>邮 箱：</label><input type="text" id="setEmail" placeholder="例如：zhangsan@263.net" maxlength="40" style="max-width:280px;flex:1"></div>
+          <div class="form-row"><label>OICQ：</label><input type="text" id="setOICQ" placeholder="你的OICQ号码" maxlength="12" style="max-width:150px"></div>
+          <div class="form-row"><label>个人签名：</label><input type="text" id="setSig" placeholder="一句话介绍自己..." maxlength="60" style="max-width:100%;flex:1"></div>
+        </div>
+      </div>
+
+      <!-- Avatar Selection -->
+      <div class="post-form-wrapper" style="margin:0 0 10px 0">
+        <div class="form-title">选择头像</div>
+        <div class="form-body">
+          <div id="avatarGrid" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+        </div>
+      </div>
+
+      <!-- Chat Preferences -->
+      <div class="post-form-wrapper" style="margin:0 0 10px 0">
+        <div class="form-title">聊天偏好</div>
+        <div class="form-body">
+          <div class="form-row"><label>默认字色：</label>
+            <div class="color-options" id="setColorOpts"><span class="color-dot selected" style="background:#0f0" data-color="#00ff00"></span><span class="color-dot" style="background:#ff0" data-color="#ffff00"></span><span class="color-dot" style="background:#f60" data-color="#ff6600"></span><span class="color-dot" style="background:#f39" data-color="#ff3399"></span><span class="color-dot" style="background:#0ff" data-color="#00ffff"></span><span class="color-dot" style="background:#fff" data-color="#ffffff"></span><span class="color-dot" style="background:#f00" data-color="#ff0000"></span><span class="color-dot" style="background:#c9f" data-color="#cc99ff"></span></div>
+          </div>
+          <div class="form-row"><label>默认字体：</label><select id="setFontDef"><option value="normal">普通</option><option value="bold">粗体</option><option value="italic">斜体</option></select></div>
+          <div class="form-row"><label>进入提示：</label>
+            <label style="min-width:auto;color:#336633;cursor:pointer"><input type="checkbox" id="setShowJoin" checked style="vertical-align:middle"> 显示用户进出消息</label>
+          </div>
+          <div class="form-row"><label>自动滚屏：</label>
+            <label style="min-width:auto;color:#336633;cursor:pointer"><input type="checkbox" id="setAutoScroll" checked style="vertical-align:middle"> 新消息时自动滚动到底部</label>
+          </div>
+          <div class="form-row"><label>提示音：</label>
+            <label style="min-width:auto;color:#336633;cursor:pointer"><input type="checkbox" id="setSound" style="vertical-align:middle"> 收到消息时播放声音</label>
+          </div>
+          <div class="form-row"><label>刷新频率：</label><select id="setRefresh"><option value="3">3秒</option><option value="5" selected>5秒</option><option value="10">10秒</option><option value="15">15秒</option></select> <span style="color:#666;font-size:13px">（频率越高越耗流量）</span></div>
+        </div>
+      </div>
+
+      <div style="text-align:center;padding:8px 0;">
+        <button class="btn-submit" onclick="saveSettings()">💾 保存设置</button>
+        <button class="btn-reset" onclick="resetSettings()" style="margin-left:6px">恢复默认</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer"><div class="copyright">Copyright © 2000-2001 红蜻蜓聊天室 All Rights Reserved</div><hr class="separator-line"><div>站长信箱：<a href="javascript:void(0)"><span class="__cf_email__" data-cfemail="1f7e7b7276715f6d7a7b7b6d7e78707179736631717a6b">[email&#160;protected]</span></a> ｜ <a href="javascript:void(0)">申请链接</a> ｜ <a href="javascript:void(0)">聊天规则  </a></div><div style="margin-top:3px">本站已稳定运行 <span style="color:#009900" id="runDays">396</span> 天 ｜ <span style="color:#cc6600">最高同时在线：512人</span></div><div style="margin-top:3px;color:#999">Powered by RedDragonfly v2.1 · 最佳浏览：IE5.0+ 800×600</div></div>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+<div class="confirm-overlay hidden" id="confirmOverlay"><div class="confirm-box"><p id="confirmText"></p><div class="warning">删除后将无法恢复！</div><button class="confirm-yes" id="confirmYes">确定删除</button><button class="confirm-no" onclick="hideConfirm()">取 消</button></div></div>
+
+<script src="/static/js/shared.js"></script>
+<script src="/static/js/settings.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+

@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>★红蜻蜓聊天室★ - 欢迎您的到来！</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="main-wrapper">
+<!-- BANNER -->
+  <div class="top-banner"><span class="dragonfly-icon">🪽</span><span class="site-title">★ 红蜻蜓聊天室 ★</span><div class="subtitle">—— 心灵的港湾 · 友情的桥梁 · 缘分从这里开始 ——</div></div>
+
+  <!-- MARQUEE -->
+  <div class="marquee-bar"><div class="marquee-text">★★★ 欢迎来到红蜻蜓聊天室！请遵守聊天室规则，文明聊天！ ★★★ <span>系统公告：</span>本周六晚8点举办"真心话大冒险"主题活动！ ★★★ 留言板已开放，快去写下你的心声！ ★★★</div></div>
+
+  <!-- NAV -->
+  <div class="nav-bar">
+    <a class="nav-btn" href="/">聊天大厅</a>
+    <a class="nav-btn" href="/guestbook">留言板</a>
+    <a class="nav-btn" href="/settings">个人设置</a>
+    <a class="nav-btn" href="/profile">查看资料</a>
+    <a class="nav-btn active" href="/help">聊天帮助</a>    <a class="nav-btn" id="adminLink" href="/admin" style="display:none">后台管理</a>
+    <a class="nav-btn" href="/logout">退出聊天  </a>
+  </div>
+
+  <!-- ====== TAB: HELP ====== -->
+  <div class="tab-page active" id="tabHelp">
+    <div class="gb-title-bar"><h2 style="color:#fc0">❓ 聊天帮助</h2><div class="gb-stats">新手必读·常见问题解答</div></div>
+    <div style="padding:12px;">
+
+      <div class="post-form-wrapper" style="margin:0 0 10px 0">
+        <div class="form-title">聊天室命令</div>
+        <div style="padding:14px 18px;color:#333;font-size:15px;line-height:2;">
+          <table style="width:100%;border-collapse:collapse;">
+            <tr style="border-bottom:1px dotted #ddd"><td style="color:#009900;font-family:Courier New;padding:5px 12px;white-space:nowrap">/help</td><td style="color:#555;padding:3px 8px">显示帮助命令列表</td></tr>
+            <tr style="border-bottom:1px dotted #ddd"><td style="color:#009900;font-family:Courier New;padding:5px 12px;white-space:nowrap">/clear</td><td style="color:#555;padding:3px 8px">清除当前屏幕上的所有聊天记录</td></tr>
+            <tr style="border-bottom:1px dotted #ddd"><td style="color:#cc6600;padding:5px 12px;white-space:nowrap">字色选择</td><td style="color:#555;padding:3px 8px">点击输入框上方的彩色方块切换文字颜色</td></tr>
+            <tr style="border-bottom:1px dotted #ddd"><td style="color:#cc6600;padding:5px 12px;white-space:nowrap">悄悄话</td><td style="color:#555;padding:3px 8px">在发送对象下拉框中选择特定用户，即可发送私密消息</td></tr>
+            <tr style="border-bottom:1px dotted #ddd"><td style="color:#cc6600;padding:5px 12px;white-space:nowrap">表情</td><td style="color:#555;padding:3px 8px">点击"表情"按钮选择表情符号插入聊天内容</td></tr>
+            <tr><td style="color:#cc6600;padding:5px 12px;white-space:nowrap">动作</td><td style="color:#555;padding:3px 8px">点击"动作"按钮向指定用户发送互动动作（送花、碰杯等）</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="post-form-wrapper" style="margin:0 0 10px 0">
+        <div class="form-title">聊天室规则 —— 请务必遵守！</div>
+        <div style="padding:14px 18px;color:#333;font-size:15px;line-height:2.2;">
+          <div style="color:#cc0000">★ 以下行为将被管理员踢出或封禁：</div>
+          <div style="padding-left:12px;">
+            <div><span style="color:#cc6600">1.</span> 发布色情、暴力、反动等违法内容</div>
+            <div><span style="color:#cc6600">2.</span> 恶意刷屏、灌水、发送广告信息</div>
+            <div><span style="color:#cc6600">3.</span> 辱骂、骚扰其他用户</div>
+            <div><span style="color:#cc6600">4.</span> 冒充管理员或其他用户</div>
+            <div><span style="color:#cc6600">5.</span> 散布谣言、恶意诋毁他人</div>
+          </div>
+          <div style="color:#009900;margin-top:6px">★ 我们鼓励：</div>
+          <div style="padding-left:12px;">
+            <div><span style="color:#cc6600">✓</span> 友善交流，互相尊重</div>
+            <div><span style="color:#cc6600">✓</span> 积极参与话题讨论和活动</div>
+            <div><span style="color:#cc6600">✓</span> 发现违规行为及时举报给管理员</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="post-form-wrapper" style="margin:0 0 10px 0">
+        <div class="form-title">常见问题 FAQ</div>
+        <div style="padding:14px 18px;color:#333;font-size:15px;line-height:2;">
+          <div style="color:#cc6600;font-weight:bold">Q：为什么我进不了聊天室？</div>
+          <div style="padding-left:12px;margin-bottom:6px">A：请确保您使用的是IE5.0以上版本的浏览器，分辨率建议设置为800×600。如果还是无法进入，可能是房间已满，请稍后再试或换一个房间。</div>
+          <div style="color:#cc6600;font-weight:bold">Q：怎么发悄悄话？</div>
+          <div style="padding-left:12px;margin-bottom:6px">A：在聊天输入框左侧的下拉菜单中选择要私聊的对象，发送的消息就只有TA能看到啦。也可以点击聊天区域中的用户昵称快速选择。</div>
+          <div style="color:#cc6600;font-weight:bold">Q：怎么当管理员？</div>
+          <div style="padding-left:12px;margin-bottom:6px">A：管理员由站长指定。如果您经常在线、热心帮助他人、遵守规则，可以发邮件到 <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0160656c686f41736465657360666e6f676d782f6f6475">[email&#160;protected]</a> 申请。</div>
+          <div style="color:#cc6600;font-weight:bold">Q：可以自建聊天房间吗？</div>
+          <div style="padding-left:12px;margin-bottom:6px">A：目前只有注册会员可以申请创建自定义房间，请先注册成为会员，然后发邮件给站长申请。</div>
+          <div style="color:#cc6600;font-weight:bold">Q：聊天记录会保存吗？</div>
+          <div style="padding-left:12px;margin-bottom:6px">A：聊天记录不会永久保存，退出后即消失。留言板的内容会保留。如果有重要信息请自行复制保存。</div>
+        </div>
+      </div>
+
+      <div class="post-form-wrapper" style="margin:0 0 10px 0">
+        <div class="form-title">关于红蜻蜓聊天室</div>
+        <div style="padding:14px 18px;color:#333;font-size:15px;line-height:2;">
+          <div>红蜻蜓聊天室创建于 <span style="color:#cc6600">2000年2月14日</span>（情人节），是由一群热爱互联网的大学生共同创办的在线交流平台。</div>
+          <div style="margin-top:4px">我们的宗旨是为全国高校学子提供一个 <span style="color:#cc6600">文明、友善、温馨</span> 的网上家园。</div>
+          <div style="margin-top:8px;border-top:1px dashed #ddd;padding-top:8px;">
+            <span style="color:#cc6600">技术支持：</span>RedDragonfly Studio<br>
+            <span style="color:#cc6600">站长邮箱：</span><span style="color:#3366cc"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="452421282c2b05372021213724222a2b23293c6b2b2031">[email&#160;protected]</a></span><br>
+            <span style="color:#cc6600">服务器：</span>中国教育网 · 北京节点<br>
+            <span style="color:#cc6600">系统版本：</span>RedDragonfly Chat v2.1<br>
+            <span style="color:#cc6600">最高在线：</span><span style="color:#009900">512人</span>（2001年3月16日）
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer"><div class="copyright">Copyright © 2000-2001 红蜻蜓聊天室 All Rights Reserved</div><hr class="separator-line"><div>站长信箱：<a href="javascript:void(0)"><span class="__cf_email__" data-cfemail="1f7e7b7276715f6d7a7b7b6d7e78707179736631717a6b">[email&#160;protected]</span></a> ｜ <a href="javascript:void(0)">申请链接</a> ｜ <a href="javascript:void(0)">聊天规则  </a></div><div style="margin-top:3px">本站已稳定运行 <span style="color:#009900" id="runDays">396</span> 天 ｜ <span style="color:#cc6600">最高同时在线：512人</span></div><div style="margin-top:3px;color:#999">Powered by RedDragonfly v2.1 · 最佳浏览：IE5.0+ 800×600</div></div>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+<div class="confirm-overlay hidden" id="confirmOverlay"><div class="confirm-box"><p id="confirmText"></p><div class="warning">删除后将无法恢复！</div><button class="confirm-yes" id="confirmYes">确定删除</button><button class="confirm-no" onclick="hideConfirm()">取 消</button></div></div>
+
+<script src="/static/js/shared.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+

@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>★红蜻蜓聊天室★ - 欢迎您的到来！</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="main-wrapper">
+<!-- BANNER -->
+  <div class="top-banner"><span class="dragonfly-icon">🪽</span><span class="site-title">★ 红蜻蜓聊天室 ★</span><div class="subtitle">—— 心灵的港湾 · 友情的桥梁 · 缘分从这里开始 ——</div></div>
+
+  <!-- MARQUEE -->
+  <div class="marquee-bar"><div class="marquee-text">★★★ 欢迎来到红蜻蜓聊天室！请遵守聊天室规则，文明聊天！ ★★★ <span>系统公告：</span>本周六晚8点举办"真心话大冒险"主题活动！ ★★★ 留言板已开放，快去写下你的心声！ ★★★</div></div>
+
+  <!-- NAV -->
+  <div class="nav-bar">
+    <a class="nav-btn active" href="/">聊天大厅</a>
+    <a class="nav-btn" href="/guestbook">留言板</a>
+    <a class="nav-btn" href="/settings">个人设置</a>
+    <a class="nav-btn" href="/profile">查看资料</a>
+    <a class="nav-btn" href="/help">聊天帮助</a>    <a class="nav-btn" id="adminLink" href="/admin" style="display:none">后台管理</a>
+    <a class="nav-btn" href="/logout">退出聊天  </a>
+  </div>
+
+  <!-- ====== TAB: CHAT ====== -->
+  <div class="tab-page active" id="tabChat">
+    <div class="info-bar"><span class="room-name">当前房间：【<span id="currentRoom">综合大厅</span>】</span><span class="online-count">在线人数：<span class="counter-num" id="onlineCount">0</span> 人</span><span class="visitor-count">今日访客：<span class="counter-num" id="visitorCount">23861</span></span></div>
+    <div class="ad-bar"><span>友情链接：<a href="javascript:void(0)">碧海银沙</a> | <a href="javascript:void(0)">网易聊天室</a> | <a href="javascript:void(0)">新浪UC</a> | <a href="javascript:void(0)">腾讯QQ</a></span><span style="color:#933">红蜻蜓工作室</span></div>
+    <div class="content-area">
+      <div class="sidebar-left">
+        <div class="sidebar-section"><div class="sidebar-title">☆ 聊天房间 ☆</div><ul class="room-list" id="roomList"><li class="current">综合大厅 (48)</li><li>真情交友 (32)</li><li>灌水乐园 (25)</li><li>校园生活 (19)</li><li>音乐心情 (12)</li><li>VIP贵宾室 (5)</li><li>午夜悄悄话 (8)</li><li>游戏天地 (15)</li></ul></div>
+        <div class="sidebar-section"><div class="sidebar-title">☆ 在线用户 ☆</div><div id="userList"></div></div>
+      </div>
+      <div class="chat-main">
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="input-area">
+          <div class="input-toolbar">
+            <label>字色：</label>
+            <div class="color-options" id="colorOptions"><span class="color-dot selected" style="background:#0f0" data-color="#00ff00"></span><span class="color-dot" style="background:#ff0" data-color="#ffff00"></span><span class="color-dot" style="background:#f60" data-color="#ff6600"></span><span class="color-dot" style="background:#f39" data-color="#ff3399"></span><span class="color-dot" style="background:#0ff" data-color="#00ffff"></span><span class="color-dot" style="background:#fff" data-color="#ffffff"></span><span class="color-dot" style="background:#f00" data-color="#ff0000"></span><span class="color-dot" style="background:#c9f" data-color="#cc99ff"></span></div>
+            <label>字体：</label><select id="fontStyle"><option value="normal">普通</option><option value="bold">粗体</option><option value="italic">斜体</option><option value="rainbow">彩虹</option></select>
+            <button class="action-btn" onclick="document.getElementById('emotePanel').classList.toggle('show')">表情</button>
+            <button class="action-btn" onclick="chatSendAction()">动作</button>
+          </div>
+          <div class="emote-panel" id="emotePanel"><span class="emote-item" onclick="ie('😊')">😊</span><span class="emote-item" onclick="ie('😂')">😂</span><span class="emote-item" onclick="ie('😍')">😍</span><span class="emote-item" onclick="ie('😭')">😭</span><span class="emote-item" onclick="ie('😡')">😡</span><span class="emote-item" onclick="ie('🤗')">🤗</span><span class="emote-item" onclick="ie('😴')">😴</span><span class="emote-item" onclick="ie('🌹')">🌹</span><span class="emote-item" onclick="ie('💔')">💔</span><span class="emote-item" onclick="ie('👋')">👋</span><span class="emote-item" onclick="ie('👍')">👍</span><span class="emote-item" onclick="ie('🎵')">🎵</span><span class="emote-item" onclick="ie('☕')">☕</span><span class="emote-item" onclick="ie('🍻')">🍻</span><span class="emote-item" onclick="ie('💐')">💐</span><span class="emote-item" onclick="ie('✨')">✨</span></div>
+          <div class="input-row"><select id="targetUser"><option value="all">所有人</option></select><input class="chat-input" type="text" id="chatInput" placeholder="在这里输入聊天内容..." maxlength="200" onkeydown="if(event.key==='Enter')chatSend()"><button class="send-btn" onclick="chatSend()">发 送</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer"><div class="copyright">Copyright © 2000-2001 红蜻蜓聊天室 All Rights Reserved</div><hr class="separator-line"><div>站长信箱：<a href="javascript:void(0)"><span class="__cf_email__" data-cfemail="1f7e7b7276715f6d7a7b7b6d7e78707179736631717a6b">[email&#160;protected]</span></a> ｜ <a href="javascript:void(0)">申请链接</a> ｜ <a href="javascript:void(0)">聊天规则  </a></div><div style="margin-top:3px">本站已稳定运行 <span style="color:#009900" id="runDays">396</span> 天 ｜ <span style="color:#cc6600">最高同时在线：512人</span></div><div style="margin-top:3px;color:#999">Powered by RedDragonfly v2.1 · 最佳浏览：IE5.0+ 800×600</div></div>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+<div class="confirm-overlay hidden" id="confirmOverlay"><div class="confirm-box"><p id="confirmText"></p><div class="warning">删除后将无法恢复！</div><button class="confirm-yes" id="confirmYes">确定删除</button><button class="confirm-no" onclick="hideConfirm()">取 消</button></div></div>
+
+<script src="/static/js/shared.js"></script>
+<script src="/static/js/chat.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+

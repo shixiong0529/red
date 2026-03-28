@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>后台管理</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="main-wrapper">
+  <div class="top-banner"><span class="dragonfly-icon">🪶</span><span class="site-title">后台管理</span><div class="subtitle">用户与留言管理</div></div>
+  <div class="nav-bar">
+    <a class="nav-btn" href="/">聊天大厅</a>
+    <a class="nav-btn" href="/guestbook">留言板</a>
+    <a class="nav-btn" href="/settings">个人设置</a>
+    <a class="nav-btn" href="/profile">查看资料</a>
+    <a class="nav-btn" href="/help">聊天帮助</a>    <a class="nav-btn" id="adminLink" href="/admin" style="display:none">后台管理</a>
+    <a class="nav-btn" href="/logout">退出聊天  </a>
+  </div>
+
+  <div class="post-form-wrapper" style="margin:12px;">
+    <div class="form-title">用户管理</div>
+    <div class="form-body">
+      <div id="adminUsers"></div>
+    </div>
+  </div>
+
+  <div class="post-form-wrapper" style="margin:12px;">
+    <div class="form-title">留言管理</div>
+    <div class="form-body">
+      <div id="adminPosts"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="confirm-overlay hidden" id="confirmOverlay"><div class="confirm-box"><p id="confirmText"></p><div class="warning">删除后将无法恢复！</div><button class="confirm-yes" id="confirmYes">确定删除</button><button class="confirm-no" onclick="hideConfirm()">取消</button></div></div>
+
+<script src="/static/js/shared.js"></script>
+<script src="/static/js/admin.js"></script>
+</body>
+</html>
+
+
+

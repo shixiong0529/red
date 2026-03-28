@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>★红蜻蜓聊天室★ - 欢迎您的到来！</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="main-wrapper">
+<!-- BANNER -->
+  <div class="top-banner"><span class="dragonfly-icon">🪽</span><span class="site-title">★ 红蜻蜓聊天室 ★</span><div class="subtitle">—— 心灵的港湾 · 友情的桥梁 · 缘分从这里开始 ——</div></div>
+
+  <!-- MARQUEE -->
+  <div class="marquee-bar"><div class="marquee-text">★★★ 欢迎来到红蜻蜓聊天室！请遵守聊天室规则，文明聊天！ ★★★ <span>系统公告：</span>本周六晚8点举办"真心话大冒险"主题活动！ ★★★ 留言板已开放，快去写下你的心声！ ★★★</div></div>
+
+  <!-- NAV -->
+  <div class="nav-bar">
+    <a class="nav-btn" href="/">聊天大厅</a>
+    <a class="nav-btn active" href="/guestbook">留言板</a>
+    <a class="nav-btn" href="/settings">个人设置</a>
+    <a class="nav-btn" href="/profile">查看资料</a>
+    <a class="nav-btn" href="/help">聊天帮助</a>    <a class="nav-btn" id="adminLink" href="/admin" style="display:none">后台管理</a>
+    <a class="nav-btn" href="/logout">退出聊天  </a>
+  </div>
+
+  <!-- ====== TAB: GUESTBOOK ====== -->
+  <div class="tab-page active" id="tabGB">
+    <div class="gb-title-bar"><h2>红蜻蜓留言板</h2><div class="gb-stats">共 <span class="num" id="totalCount">0</span> 条留言 ｜ 今日 <span class="num" id="todayCount">0</span> 条</div></div>
+    <div class="post-form-wrapper"><div class="form-title">发表新留言 —— 说出你的心声！</div><div class="form-body">
+      <div class="form-row"><label>昵 称：</label><input type="text" id="postNick" placeholder="你的昵称" maxlength="12"><label style="min-width:50px">性别：</label><select id="postGender"><option value="male">♂ 帅哥</option><option value="female">♀ 美眉</option><option value="secret">？ 保密</option></select></div>
+      <div class="form-row"><label>心 情：</label><div class="mood-select" id="moodSelect"><span class="mood-option selected" data-mood="😊">😊</span><span class="mood-option" data-mood="😢">😢</span><span class="mood-option" data-mood="😡">😡</span><span class="mood-option" data-mood="😍">😍</span><span class="mood-option" data-mood="🤔">🤔</span><span class="mood-option" data-mood="😴">😴</span><span class="mood-option" data-mood="🎵">🎵</span><span class="mood-option" data-mood="🌙">🌙</span><span class="mood-option" data-mood="☀️">☀️</span><span class="mood-option" data-mood="🌹">🌹</span></div></div>
+      <div class="form-row"><label>主 题：</label><input type="text" id="postSubject" placeholder="留言主题（可选）" maxlength="40" style="max-width:100%;flex:1"></div>
+      <div class="form-row"><label>内 容：</label><textarea id="postContent" placeholder="在这里写下你想说的话..." maxlength="500"></textarea></div>
+      <div class="form-actions"><button class="btn-submit" onclick="gbSubmit()">✎ 发表留言</button><button class="btn-reset" onclick="gbReset()">清空重写</button></div>
+    </div></div>
+    <div class="message-list" id="messageList"></div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer"><div class="copyright">Copyright © 2000-2001 红蜻蜓聊天室 All Rights Reserved</div><hr class="separator-line"><div>站长信箱：<a href="javascript:void(0)"><span class="__cf_email__" data-cfemail="1f7e7b7276715f6d7a7b7b6d7e78707179736631717a6b">[email&#160;protected]</span></a> ｜ <a href="javascript:void(0)">申请链接</a> ｜ <a href="javascript:void(0)">聊天规则  </a></div><div style="margin-top:3px">本站已稳定运行 <span style="color:#009900" id="runDays">396</span> 天 ｜ <span style="color:#cc6600">最高同时在线：512人</span></div><div style="margin-top:3px;color:#999">Powered by RedDragonfly v2.1 · 最佳浏览：IE5.0+ 800×600</div></div>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+<div class="confirm-overlay hidden" id="confirmOverlay"><div class="confirm-box"><p id="confirmText"></p><div class="warning">删除后将无法恢复！</div><button class="confirm-yes" id="confirmYes">确定删除</button><button class="confirm-no" onclick="hideConfirm()">取 消</button></div></div>
+
+<script src="/static/js/shared.js"></script>
+<script src="/static/js/guestbook.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
