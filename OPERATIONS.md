@@ -64,6 +64,16 @@ systemctl restart nginx
 
 ## 4. 更新项目代码
 
+推荐优先使用项目自带脚本：
+
+```bash
+bash update.sh
+```
+
+作用：一键拉取最新代码、安装依赖、重启 `red` 服务，并检查服务状态。
+
+如果你希望手动执行，也可以使用下面这组命令：
+
 ```bash
 cd /opt/red/current
 git pull

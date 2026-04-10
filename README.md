@@ -162,6 +162,21 @@ http://127.0.0.1:8000
 - [OPERATIONS.md](./OPERATIONS.md)
 - [deploy/ACME_AUTORENEW.md](./deploy/ACME_AUTORENEW.md)
 
+## 更新项目
+
+服务器更新推荐直接执行：
+
+```bash
+bash update.sh
+```
+
+这个脚本会自动完成：
+
+- 拉取最新代码
+- 安装依赖
+- 重启 `red` 服务
+- 检查服务状态
+
 ## 适用场景
 
 - 小型聊天室网站
