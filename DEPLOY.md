@@ -1,42 +1,50 @@
-# Red Dragonfly Chatroom Deployment
+# 红蜻蜓聊天室部署说明
 
-This project is a single-process FastAPI application with SQLite, Jinja2 templates, static assets, and a WebSocket chat endpoint.
+本项目是一个单进程 FastAPI 应用，使用 SQLite、Jinja2 模板、静态资源和 WebSocket 聊天接口。
 
-## Recommended target
+## 当前已验证的部署方式
 
-- OS: Alibaba Cloud ECS with Ubuntu 22.04 LTS or 24.04 LTS
-- Region: Wuhan is fine for latency in central China
-- Runtime: `systemd + uvicorn + nginx`
-- Database: SQLite for early deployment and small-scale use
+这份文档优先描述已经在生产环境跑通的部署方式：
 
-## Suggested server spec
+- 服务器类型：阿里云轻量应用服务器
+- 地域：武汉
+- 运行方式：`systemd + uvicorn + nginx`
+- 数据库：SQLite
+- 正式域名：`chat.slow.best`
+- HTTPS：Let's Encrypt 手动 DNS 验证
+
+## 服务器建议配置
 
 - 2 vCPU
 - 2 GB RAM
-- 40 GB ESSD
-- Public bandwidth according to your expected traffic
+- 40 GB 磁盘
+- 有公网 IP
 
-## Ports and security group
+## 防火墙 / 安全放行
 
-Open these ports in the Alibaba Cloud ECS security group:
+如果你使用的是阿里云轻量应用服务器，请在防火墙模板中放行：
 
-- `22/tcp` for SSH
-- `80/tcp` for HTTP
-- `443/tcp` for HTTPS after certificate setup
+- `22/tcp`
+- `80/tcp`
+- `443/tcp`
 
-## 1. Prepare the server
+如果你使用的是标准 ECS，请在安全组中放行：
+
+- `22/tcp`
+- `80/tcp`
+- `443/tcp`
+
+## 1. 准备服务器
 
 ```bash
 sudo apt update
-sudo apt install -y python3 python3-venv python3-pip nginx
+sudo apt install -y python3 python3-venv python3-pip nginx git
 sudo useradd -r -s /usr/sbin/nologin www || true
 sudo mkdir -p /opt/red
-sudo chown -R $USER:$USER /opt/red
+sudo mkdir -p /opt/red/data
 ```
 
-## 2. Upload project code
-
-You can use `git clone`, `scp`, or `rsync`.
+## 2. 拉取项目代码
 
 ```bash
 cd /opt/red
@@ -44,9 +52,9 @@ git clone <your-repo-url> current
 cd current
 ```
 
-If you are not using Git on the server, upload the full project directory to `/opt/red/current`.
+如果你不是通过 Git 拉代码，也可以通过 `scp` 或其他方式把完整项目上传到 `/opt/red/current`。
 
-## 3. Create the Python environment
+## 3. 创建 Python 虚拟环境并安装依赖
 
 ```bash
 cd /opt/red/current
@@ -56,15 +64,14 @@ pip install -U pip
 pip install -r requirements.txt
 ```
 
-## 4. Prepare the environment file
+## 4. 准备环境变量
 
 ```bash
 cd /opt/red/current
 cp .env.example .env
-mkdir -p /opt/red/data
 ```
 
-Recommended `.env` values for first deployment:
+推荐的初始 `.env` 内容：
 
 ```env
 DATABASE_URL=sqlite:////opt/red/data/red_dragonfly.db
@@ -74,9 +81,7 @@ SESSION_COOKIE_SAMESITE=lax
 SESSION_COOKIE_DOMAIN=
 ```
 
-If you later enable HTTPS, change `SESSION_COOKIE_SECURE=false` to `true`.
-
-## 5. First startup test
+## 5. 首次手动启动测试
 
 ```bash
 cd /opt/red/current
@@ -84,19 +89,26 @@ cd /opt/red/current
 uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
-Open `http://server-ip:8000` temporarily to check whether the app starts correctly. Stop it with `Ctrl+C` after verification.
+临时测试地址：
 
-## 6. Install the systemd service
+```text
+http://127.0.0.1:8000
+```
+
+确认服务可以启动后，按 `Ctrl + C` 停止，进入正式托管步骤。
+
+## 6. 安装 systemd 服务
 
 ```bash
 sudo cp /opt/red/current/deploy/red.service /etc/systemd/system/red.service
-sudo chown -R www:www /opt/red/current /opt/red/data
+sudo chown -R www:www /opt/red/current
+sudo chown -R www:www /opt/red/data
 sudo systemctl daemon-reload
 sudo systemctl enable --now red
-sudo systemctl status red
+sudo systemctl status red --no-pager
 ```
 
-Useful commands:
+常用命令：
 
 ```bash
 sudo journalctl -u red -f
@@ -104,7 +116,7 @@ sudo systemctl restart red
 sudo systemctl stop red
 ```
 
-## 7. Configure nginx
+## 7. 配置 nginx
 
 ```bash
 sudo cp /opt/red/current/deploy/nginx-red.conf /etc/nginx/sites-available/red
@@ -114,31 +126,118 @@ sudo nginx -t
 sudo systemctl reload nginx
 ```
 
-After this, open `http://server-ip/`.
+此时可以先通过公网 IP 测试：
 
-## 8. Bind a domain and enable HTTPS
-
-Once your domain resolves to the ECS public IP:
-
-```bash
-sudo apt install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d your-domain.com -d www.your-domain.com
+```text
+http://server-ip/
 ```
 
-Then update `.env`:
+## 8. 绑定域名
+
+在阿里云云解析 DNS 中添加：
+
+- `chat` -> `A` -> 服务器公网 IP
+
+如果你的主站 `slow.best` 和 `www.slow.best` 仍然指向 GitHub Pages，请保持它们原有记录不变，只新增 `chat` 这条记录即可。
+
+## 9. 启用 HTTPS
+
+本项目的实际生产环境中，`certbot --nginx` 自动 HTTP 验证没有跑通，因此当前已验证可用的是手动 DNS 验证方式。
+
+签发证书命令：
+
+```bash
+certbot certonly --manual --preferred-challenges dns --key-type rsa --cert-name chat.slow.best -d chat.slow.best --force-renewal
+```
+
+执行过程中，按提示在阿里云 DNS 中添加 TXT 记录：
+
+- 主机记录：`_acme-challenge.chat`
+- 记录类型：`TXT`
+- 记录值：certbot 输出的验证值
+
+验证 TXT 记录是否生效：
+
+```bash
+dig TXT _acme-challenge.chat.slow.best +short
+```
+
+证书签发成功后，把 nginx 配置切换为 HTTPS：
+
+```nginx
+server {
+    listen 80;
+    server_name chat.slow.best;
+
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+        default_type "text/plain";
+        try_files $uri =404;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl http2;
+    server_name chat.slow.best;
+
+    ssl_certificate /etc/letsencrypt/live/chat.slow.best/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/chat.slow.best/privkey.pem;
+
+    client_max_body_size 10m;
+
+    location /static/ {
+        alias /opt/red/current/static/;
+        expires 7d;
+        add_header Cache-Control "public";
+    }
+
+    location /ws/chat {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+然后执行：
+
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+再把 `.env` 改成生产 HTTPS 模式：
 
 ```env
 SESSION_COOKIE_SECURE=true
-SESSION_COOKIE_DOMAIN=your-domain.com
+SESSION_COOKIE_DOMAIN=chat.slow.best
 ```
 
-Apply the new settings:
+应用新配置：
 
 ```bash
 sudo systemctl restart red
 ```
 
-## 9. Updating the app
+## 10. 更新项目
 
 ```bash
 cd /opt/red/current
@@ -148,9 +247,10 @@ pip install -r requirements.txt
 sudo systemctl restart red
 ```
 
-## Notes
+## 补充说明
 
-- SQLite is acceptable for initial deployment, low traffic, or personal/demo use.
-- If concurrency grows, move to MySQL or PostgreSQL and set `DATABASE_URL` accordingly.
-- The WebSocket endpoint is `/ws/chat`, and the included nginx config already supports upgrade headers.
-- The app seeds content on first startup. Make sure the `bak/` directory is present in production.
+- SQLite 适合当前这种轻量部署和中低并发场景。
+- 如果后续并发增长，可以迁移到 MySQL 或 PostgreSQL，并通过 `DATABASE_URL` 切换。
+- WebSocket 接口是 `/ws/chat`，当前 nginx 配置已经包含升级头支持。
+- 应用首次启动时会从 `bak/` 目录中读取旧版页面素材和初始数据，因此生产环境请保留 `bak/`。
+- 当前证书是手动 DNS 验证签发，不会自动续期。自动续期方案请参考 [deploy/ACME_AUTORENEW.md](./deploy/ACME_AUTORENEW.md)。

@@ -2,7 +2,7 @@
 
 一个复古风格的轻量聊天室网站，基于 `FastAPI + SQLite + Jinja2 + 原生 JavaScript + WebSocket` 构建。
 
-项目目前已经从早期静态页面原型演进为可运行的动态 Web 应用，支持用户注册登录、实时聊天、留言板、个人资料、后台管理和机器人陪聊。
+项目已经从早期静态原型演进为可运行的 Web 应用，支持用户注册登录、实时聊天、留言板、个人资料、后台管理和机器人陪聊。
 
 ## 功能概览
 
@@ -40,23 +40,25 @@
 ```text
 red/
 ├─ app/
-│  ├─ main.py          # 应用入口，页面/API/WebSocket 路由
-│  ├─ models.py        # 数据模型
-│  ├─ crud.py          # 数据访问逻辑
-│  ├─ schemas.py       # 请求/响应模型
-│  ├─ deps.py          # 依赖注入与登录态解析
-│  ├─ db.py            # 数据库连接配置
-│  ├─ security.py      # 密码哈希、token、session
-│  ├─ ws.py            # WebSocket 连接管理
-│  ├─ seed.py          # 启动时种子数据初始化
-│  └─ bots.py          # 机器人逻辑
-├─ templates/          # 页面模板
+│  ├─ main.py
+│  ├─ models.py
+│  ├─ crud.py
+│  ├─ schemas.py
+│  ├─ deps.py
+│  ├─ db.py
+│  ├─ config.py
+│  ├─ security.py
+│  ├─ ws.py
+│  ├─ seed.py
+│  └─ bots.py
+├─ templates/
 ├─ static/
-│  ├─ css/             # 样式文件
-│  └─ js/              # 页面脚本
-├─ bak/                # 旧版页面素材，初始化数据仍会读取
-├─ red_dragonfly.db    # SQLite 数据库文件
-├─ requirements.txt    # Python 依赖清单
+├─ deploy/
+├─ bak/
+├─ red_dragonfly.db
+├─ requirements.txt
+├─ DEPLOY.md
+├─ OPERATIONS.md
 └─ red-技术架构与功能模块.md
 ```
 
@@ -66,7 +68,7 @@ red/
 
 说明：
 
-- 当前项目依赖版本对 Python 3.14 兼容性不稳定，不建议直接使用 3.14 运行
+- 当前依赖版本对 Python 3.14 没有验证，不建议直接使用 3.14 运行。
 
 ## 安装与启动
 
@@ -131,7 +133,7 @@ http://127.0.0.1:8000
 
 项目使用 Cookie + Session 机制维持登录状态：
 
-- 登录成功后后端生成 session token
+- 登录成功后后端生成 `session token`
 - token 写入浏览器 cookie
 - 后续请求通过 cookie 识别当前用户
 
@@ -144,26 +146,20 @@ http://127.0.0.1:8000
 
 ### 房间机制
 
-当前项目支持用户切换房间并记录房间状态，但消息广播逻辑仍以全局广播为主，房间隔离能力还不是严格频道模型。
+当前项目支持用户切换房间并记录房间状态，但消息广播逻辑目前仍以全局广播为主，房间隔离还不是严格频道模型。
 
 ## 相关文档
 
 - [red-技术架构与功能模块.md](./red-技术架构与功能模块.md)
-
-该文档中包含：
-
-- 技术架构说明
-- 功能模块清单
-- Mermaid 架构图
-- Mermaid 请求流转图
+- [DEPLOY.md](./DEPLOY.md)
+- [OPERATIONS.md](./OPERATIONS.md)
+- [deploy/ACME_AUTORENEW.md](./deploy/ACME_AUTORENEW.md)
 
 ## 适用场景
 
-这个项目适合：
-
 - 小型聊天室网站
 - 复古社区风格页面
-- 原型改造为可运行 Web 应用
+- 静态原型改造成可运行 Web 应用
 - 本地部署或轻量服务器部署
 
 ## 后续可演进方向
