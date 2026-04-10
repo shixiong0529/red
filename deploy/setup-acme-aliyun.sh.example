@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Copy this file to a private location on the server, then replace the values below.
+# Do not commit real AccessKeys into Git.
+
+ALI_KEY="REPLACE_WITH_YOUR_ACCESS_KEY_ID"
+ALI_SECRET="REPLACE_WITH_YOUR_ACCESS_KEY_SECRET"
+DOMAIN="chat.slow.best"
+
+export Ali_Key="$ALI_KEY"
+export Ali_Secret="$ALI_SECRET"
+
+curl https://get.acme.sh | sh
+
+"$HOME/.acme.sh/acme.sh" --set-default-ca --server letsencrypt
+"$HOME/.acme.sh/acme.sh" --issue --dns dns_ali -d "$DOMAIN" --keylength 2048
+mkdir -p "/etc/letsencrypt/live/$DOMAIN"
+"$HOME/.acme.sh/acme.sh" --install-cert -d "$DOMAIN" \
+  --key-file "/etc/letsencrypt/live/$DOMAIN/privkey.pem" \
+  --fullchain-file "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" \
+  --reloadcmd "systemctl reload nginx"
+
+echo "Done. Test with:"
+echo "  $HOME/.acme.sh/acme.sh --renew -d $DOMAIN --force"
