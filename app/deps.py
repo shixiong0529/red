@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from .db import SessionLocal
 from . import crud
+from .config import settings
 
 
 def get_db():
@@ -18,7 +19,7 @@ def get_db():
 
 
 def get_current_user(
-    session: str | None = Cookie(default=None),
+    session: str | None = Cookie(default=None, alias=settings.session_cookie_name),
     db: Session = Depends(get_db),
 ):
     if not session:

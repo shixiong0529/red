@@ -20,6 +20,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from . import crud, models, schemas
+from .config import settings
 from .db import Base, engine
 from .deps import get_db, get_current_user, require_user
 from .security import session_expiry
@@ -102,11 +103,14 @@ def login_page(request: Request, user=Depends(get_current_user)):
 
 
 @app.get("/logout")
-def logout(session: str | None = Cookie(default=None), db: Session = Depends(get_db)):
+def logout(
+    session: str | None = Cookie(default=None, alias=settings.session_cookie_name),
+    db: Session = Depends(get_db),
+):
     if session:
         crud.delete_session(db, session)
     resp = RedirectResponse(url="/login", status_code=status.HTTP_302_FOUND)
-    resp.delete_cookie("session")
+    resp.delete_cookie(settings.session_cookie_name, domain=settings.session_cookie_domain)
     return resp
 
 
@@ -125,7 +129,14 @@ def register(payload: schemas.UserRegister, db: Session = Depends(get_db)):
         "user": {"id": user.id, "username": user.username, "gender": user.gender, "is_admin": user.is_admin},
     }
     response = JSONResponse(resp)
-    response.set_cookie("session", sess.token, httponly=True, samesite="lax")
+    response.set_cookie(
+        settings.session_cookie_name,
+        sess.token,
+        httponly=True,
+        samesite=settings.session_cookie_samesite,
+        secure=settings.session_cookie_secure,
+        domain=settings.session_cookie_domain,
+    )
     return response
 
 
@@ -140,7 +151,14 @@ def login(payload: schemas.UserLogin, db: Session = Depends(get_db)):
         "user": {"id": user.id, "username": user.username, "gender": user.gender, "is_admin": user.is_admin},
     }
     response = JSONResponse(resp)
-    response.set_cookie("session", sess.token, httponly=True, samesite="lax")
+    response.set_cookie(
+        settings.session_cookie_name,
+        sess.token,
+        httponly=True,
+        samesite=settings.session_cookie_samesite,
+        secure=settings.session_cookie_secure,
+        domain=settings.session_cookie_domain,
+    )
     return response
 
 
@@ -372,7 +390,7 @@ def admin_delete_user(user_id: int, db: Session = Depends(get_db), user=Depends(
 @app.websocket("/ws/chat")
 async def chat_ws(
     websocket: WebSocket,
-    session: str | None = Cookie(default=None),
+    session: str | None = Cookie(default=None, alias=settings.session_cookie_name),
     db: Session = Depends(get_db),
 ):
     if not session:
