@@ -1,74 +1,75 @@
-# HTTPS Auto-Renewal Plan for chat.slow.best
+# chat.slow.best HTTPS 自动续期方案
 
-Current status:
+当前状态：
 
-- The production certificate for `chat.slow.best` is valid.
-- It was issued with `certbot --manual --preferred-challenges dns`.
-- Manual certificates do not renew automatically.
+- `chat.slow.best` 的线上证书已经可用。
+- 它是通过 `certbot --manual --preferred-challenges dns` 签发的。
+- 手动签发的证书不会自动续期。
 
-To solve renewal properly, switch to an API-based DNS challenge flow.
+如果要真正解决续期问题，需要把当前方案切换成基于 DNS API 的自动验证流程。
 
-## Recommended approach
+## 推荐方案
 
-Use `acme.sh` with Alibaba Cloud DNS API (`dns_ali`).
+使用 `acme.sh` 配合阿里云 DNS API（`dns_ali`）。
 
-Why this approach:
+推荐原因：
 
-- It supports DNS validation automatically.
-- It avoids the HTTP challenge path that previously returned `403`.
-- It can renew certificates automatically without manual TXT record updates.
+- 支持自动 DNS 验证
+- 可以绕开之前 HTTP 验证返回 `403` 的问题
+- 不需要每次续证时手动添加 TXT 记录
 
-## Prerequisites
+## 前置准备
 
-Create a RAM user in Alibaba Cloud with permission to manage DNS records for your domain.
+在阿里云创建一个 RAM 用户，并授予它管理当前域名 DNS 记录的权限。
 
-Recommended permission scope:
+权限建议：
 
-- Only the permissions required to manage Alibaba Cloud DNS records.
-- Do not use the Alibaba Cloud root account AccessKey.
+- 只授予管理阿里云 DNS 所需的最小权限
+- 不要使用阿里云主账号的 AccessKey
 
-You will need:
+你需要准备：
 
 - `Ali_Key`
 - `Ali_Secret`
 
-Alibaba Cloud documents recommend using a RAM user and AccessKey pair for API access.
+阿里云官方通常建议通过 RAM 用户 + AccessKey 的方式调用 API。
 
-## 1. Install acme.sh
+## 1. 安装 acme.sh
 
 ```bash
 curl https://get.acme.sh | sh
 source ~/.bashrc
 ```
 
-Purpose: Install `acme.sh` for the current user and register its cron-based renewal task.
+作用：为当前用户安装 `acme.sh`，并注册它自带的定时续期任务。
 
-If `source ~/.bashrc` does not work in your shell, log out and log back in.
+如果 `source ~/.bashrc` 不生效，可以退出终端后重新登录。
 
-## 2. Set Alibaba Cloud DNS API credentials
+## 2. 配置阿里云 DNS API 凭据
 
 ```bash
 export Ali_Key="REPLACE_WITH_YOUR_ACCESS_KEY_ID"
 export Ali_Secret="REPLACE_WITH_YOUR_ACCESS_KEY_SECRET"
 ```
 
-Purpose: Give `acme.sh` access to Alibaba Cloud DNS so it can create and remove TXT validation records automatically.
+作用：让 `acme.sh` 可以通过阿里云 DNS API 自动创建和删除 TXT 验证记录。
 
-Note:
+注意：
 
-- `acme.sh` stores these values in its own account config after first use.
-- You do not need to keep exporting them forever once issuance succeeds, but keep them in a secure password manager.
+- `acme.sh` 第一次成功签发后，会把这些配置保存到自己的账户配置中
+- 后续不一定需要每次都重新 export
+- 但请务必把 AccessKey 保存到安全的密码管理工具中
 
-## 3. Issue a new RSA certificate automatically
+## 3. 自动签发新的 RSA 证书
 
 ```bash
 ~/.acme.sh/acme.sh --set-default-ca --server letsencrypt
 ~/.acme.sh/acme.sh --issue --dns dns_ali -d chat.slow.best --keylength 2048
 ```
 
-Purpose: Issue a fresh RSA certificate for `chat.slow.best` using Alibaba Cloud DNS API automation.
+作用：通过阿里云 DNS API 自动签发一张新的 `chat.slow.best` RSA 证书。
 
-## 4. Install the certificate to nginx paths
+## 4. 把证书安装到 nginx 当前使用的路径
 
 ```bash
 mkdir -p /etc/letsencrypt/live/chat.slow.best
@@ -78,38 +79,38 @@ mkdir -p /etc/letsencrypt/live/chat.slow.best
   --reloadcmd "systemctl reload nginx"
 ```
 
-Purpose: Copy the renewed certificate files to the same paths nginx already uses, then reload nginx automatically after renewal.
+作用：把续签后的证书复制到 nginx 当前正在使用的证书路径，并在续签完成后自动 reload nginx。
 
-## 5. Test renewal
+## 5. 测试续期流程
 
 ```bash
 ~/.acme.sh/acme.sh --renew -d chat.slow.best --force
 ```
 
-Purpose: Verify the automatic renewal path works before relying on it in production.
+作用：在真正依赖自动续期前，手动测试整条续签链路是否工作正常。
 
-Then confirm nginx reloaded successfully:
+然后执行：
 
 ```bash
 systemctl status nginx --no-pager
 curl -Iv https://chat.slow.best
 ```
 
-Purpose: Check nginx health and verify the renewed certificate is being served correctly.
+作用：检查 nginx 是否正常，并确认服务器对外提供的证书已经续签成功。
 
-## 6. Keep or remove certbot
+## 6. certbot 可以保留吗
 
-You can keep `certbot` installed, but after switching to `acme.sh`, the active renewal workflow should be:
+可以保留 `certbot`，但一旦切换到 `acme.sh` 后，真正生效的续期流程应当是：
 
-- issuance: `acme.sh --issue --dns dns_ali`
-- install: `acme.sh --install-cert`
-- renew: handled by `acme.sh` cron job
+- 签发：`acme.sh --issue --dns dns_ali`
+- 安装：`acme.sh --install-cert`
+- 续期：由 `acme.sh` 自带的定时任务负责
 
-## 7. Rollback plan
+## 7. 回滚方案
 
-If the automated issuance fails:
+如果自动签发失败：
 
-- the current certificate remains in place until expiry
-- nginx continues serving the currently installed certificate
+- 当前已经签发好的证书仍然会继续使用，直到到期
+- nginx 也会继续提供当前已安装的证书
 
-That means you can test this migration safely before the current certificate expires.
+这意味着你可以在证书到期前安全地测试自动续期方案，而不会立刻影响线上站点。
