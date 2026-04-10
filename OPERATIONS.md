@@ -172,6 +172,66 @@ curl -Iv https://chat.slow.best
 
 作用：确认 HTTPS 证书校验正常。
 
+### 手动续证极简版
+
+如果你不打算现在改造成自动续期，以后每次手动续证只需要按下面做：
+
+1. 登录服务器，执行下面这条命令：
+
+```bash
+certbot certonly --manual --preferred-challenges dns --key-type rsa --cert-name chat.slow.best -d chat.slow.best --force-renewal
+```
+
+作用：向 Let's Encrypt 申请重新签发 `chat.slow.best` 的证书。
+
+2. 看到提示后，去阿里云 DNS 控制台添加一条 TXT 记录：
+
+- 主机记录：`_acme-challenge.chat`
+- 记录类型：`TXT`
+- 记录值：使用 certbot 当次输出的那一串随机字符串
+
+作用：告诉证书机构“这个域名确实由我控制”。
+
+3. 在服务器上执行：
+
+```bash
+dig TXT _acme-challenge.chat.slow.best +short
+```
+
+作用：确认 TXT 记录已经生效。
+
+4. 回到刚才运行 certbot 的窗口，按回车继续。
+
+作用：让 certbot 完成验证并签发新证书。
+
+5. 证书签发成功后，执行：
+
+```bash
+systemctl reload nginx
+```
+
+作用：让 nginx 重新加载新证书。
+
+6. 最后执行：
+
+```bash
+curl -Iv https://chat.slow.best
+```
+
+作用：确认新证书已经生效，HTTPS 校验正常。
+
+7. 可选操作：回到阿里云 DNS，删除 `_acme-challenge.chat` 这条临时 TXT 记录。
+
+作用：清理续证时临时添加的验证记录。
+
+一句话总结：
+
+- 运行 certbot
+- 按提示去阿里云加 TXT
+- 等 TXT 生效
+- 回车完成签证
+- reload nginx
+
 ## 9. 常见故障排查
 
 如果应用无法启动：
