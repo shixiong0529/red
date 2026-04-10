@@ -18,4 +18,4 @@ class Settings:
     session_cookie_domain = os.getenv("SESSION_COOKIE_DOMAIN") or None
 
 
-settings = Settings()
+app_settings = Settings()
