@@ -230,3 +230,48 @@ systemctl restart red
 ```
 
 作为回滚保险，不要急着删除。
+
+## 6. PostgreSQL 备份与恢复
+
+### 备份 PostgreSQL
+
+```bash
+sudo -u postgres pg_dump -d red_db > /opt/red/data/red_db.$(date +%F-%H%M%S).sql
+```
+
+作用：把当前 `red_db` 导出成 SQL 文件，保存到 `/opt/red/data/` 目录。
+
+建议：
+
+- 在数据库密码修改前备份一次
+- 在大版本升级前备份一次
+- 在重大活动或重要运营节点前备份一次
+
+### 查看备份文件
+
+```bash
+ls -lh /opt/red/data/*.sql
+```
+
+作用：查看已经生成的 PostgreSQL 备份文件。
+
+### 从备份恢复 PostgreSQL
+
+```bash
+sudo -u postgres psql -d red_db < /opt/red/data/你的备份文件.sql
+```
+
+作用：把指定 SQL 备份重新导入 `red_db`。
+
+### 更稳的恢复建议
+
+如果是重要恢复场景，建议先新建一个临时库进行验证，再决定是否覆盖正式库。
+
+例如：
+
+```bash
+sudo -u postgres createdb red_db_restore_test -O red_user
+sudo -u postgres psql -d red_db_restore_test < /opt/red/data/你的备份文件.sql
+```
+
+作用：先把备份恢复到测试库，验证内容正常后再处理正式库。

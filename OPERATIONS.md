@@ -130,6 +130,22 @@ cp /opt/red/data/red_dragonfly.db /opt/red/data/red_dragonfly.db.bak.$(date +%F-
 
 作用：在升级或风险操作前，创建带时间戳的 SQLite 备份文件。
 
+如果当前线上已经切到 PostgreSQL，再额外执行：
+
+```bash
+sudo -u postgres pg_dump -d red_db > /opt/red/data/red_db.$(date +%F-%H%M%S).sql
+```
+
+作用：导出当前 PostgreSQL 数据库为 SQL 备份文件，方便后续恢复。
+
+如果需要从 PostgreSQL 备份恢复：
+
+```bash
+sudo -u postgres psql -d red_db < /opt/red/data/你的备份文件.sql
+```
+
+作用：把指定 SQL 备份重新导入到 `red_db`。
+
 ## 8. HTTPS 证书续期
 
 当前证书信息：
