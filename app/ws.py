@@ -31,7 +31,7 @@ class ConnectionManager:
             for ws in list(conns):
                 try:
                     await ws.send_text(data)
-                except (RuntimeError, WebSocketDisconnect):
+                except Exception:
                     self.disconnect(user_id, ws)
 
     async def send_to(self, user_id: int, payload: dict) -> None:
@@ -39,7 +39,7 @@ class ConnectionManager:
         for ws in list(self.active.get(user_id, [])):
             try:
                 await ws.send_text(data)
-            except (RuntimeError, WebSocketDisconnect):
+            except Exception:
                 self.disconnect(user_id, ws)
 
     def list_users(self) -> List[dict]:

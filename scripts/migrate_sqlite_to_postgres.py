@@ -4,7 +4,7 @@ import os
 import sys
 from pathlib import Path
 
-from sqlalchemy import create_engine, select
+from sqlalchemy import create_engine, select, text
 from sqlalchemy.orm import Session, sessionmaker
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -45,6 +45,27 @@ def _copy_table(src: Session, dst: Session, model) -> int:
     return copied
 
 
+def _reset_postgres_sequences(dst: Session) -> None:
+    for model in MODEL_ORDER:
+        table_name = model.__table__.name
+        pk_columns = list(model.__table__.primary_key.columns)
+        if len(pk_columns) != 1:
+            continue
+        pk_name = pk_columns[0].name
+        dst.execute(
+            text(
+                f"""
+                SELECT setval(
+                    pg_get_serial_sequence('{table_name}', '{pk_name}'),
+                    COALESCE((SELECT MAX({pk_name}) FROM {table_name}), 1),
+                    COALESCE((SELECT MAX({pk_name}) FROM {table_name}), 0) > 0
+                )
+                """
+            )
+        )
+    dst.commit()
+
+
 def main() -> None:
     sqlite_path = os.getenv("SQLITE_PATH", "./red_dragonfly.db")
     postgres_url = os.getenv("POSTGRES_URL")
@@ -71,6 +92,8 @@ def main() -> None:
         for model in MODEL_ORDER:
             copied = _copy_table(src, dst, model)
             print(f"{model.__tablename__}: copied {copied} rows")
+        _reset_postgres_sequences(dst)
+        print("postgres sequences: reset")
 
     print("Migration completed.")
 
