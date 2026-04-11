@@ -4,6 +4,7 @@ import json
 from typing import Dict, List
 
 from fastapi import WebSocket
+from starlette.websockets import WebSocketDisconnect
 
 
 class ConnectionManager:
@@ -26,14 +27,20 @@ class ConnectionManager:
 
     async def broadcast(self, payload: dict) -> None:
         data = json.dumps(payload, ensure_ascii=False)
-        for conns in list(self.active.values()):
+        for user_id, conns in list(self.active.items()):
             for ws in list(conns):
-                await ws.send_text(data)
+                try:
+                    await ws.send_text(data)
+                except (RuntimeError, WebSocketDisconnect):
+                    self.disconnect(user_id, ws)
 
     async def send_to(self, user_id: int, payload: dict) -> None:
         data = json.dumps(payload, ensure_ascii=False)
         for ws in list(self.active.get(user_id, [])):
-            await ws.send_text(data)
+            try:
+                await ws.send_text(data)
+            except (RuntimeError, WebSocketDisconnect):
+                self.disconnect(user_id, ws)
 
     def list_users(self) -> List[dict]:
         return list(self.users.values())
