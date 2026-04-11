@@ -5,3 +5,8 @@ __pycache__/
 *.pyd
 .pytest_cache/
 .mypy_cache/
+.env
+*.sql
+*.dump
+*.bak
+*.bak.*
