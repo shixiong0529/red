@@ -69,7 +69,7 @@ function appendMessage(msg) {
     d.innerHTML =
       `<span class="msg-time">[${ts}]</span> ` +
       wl +
-      `<span class="msg-name" style="color:${nameColor}" onclick="cReply('${uname.replace(/'/g, "\\'")}')">` +
+      `<span class="msg-name" style="color:${nameColor}" onclick="cReplyById(${Number(msg.user?.id || 0)})">` +
       esc(uname) +
       `</span> 说：<span class="${cls}" style="${sty}">` +
       esc(msg.content || "") +
@@ -93,7 +93,7 @@ function updateOnline(users) {
   (users || []).forEach((u) => {
     html +=
       `<div class="user-list-item ${u.is_admin ? "admin" : u.gender}" ` +
-      `onclick="cReply('${String(u.username || "").replace(/'/g, "\\'")}')">` +
+      `onclick="cReplyById(${Number(u.id || 0)})">` +
       esc(u.username) +
       `</div>`;
   });
@@ -113,12 +113,12 @@ function updateOnline(users) {
   if (count) count.textContent = String((users || []).length + (currentUser ? 1 : 0));
 }
 
-function cReply(name) {
-  if (!currentUser || name === currentUser.username) return;
+function cReplyById(userId) {
+  if (!currentUser || !userId || Number(userId) === Number(currentUser.id)) return;
   const sel = el("targetUser");
   if (!sel) return;
   for (let i = 0; i < sel.options.length; i++) {
-    if (sel.options[i].textContent === name) {
+    if (sel.options[i].value === String(userId)) {
       sel.selectedIndex = i;
       break;
     }
@@ -190,7 +190,7 @@ function chatSendAction() {
 // Expose for inline onclick handlers in the template.
 window.chatSend = chatSend;
 window.chatSendAction = chatSendAction;
-window.cReply = cReply;
+window.cReplyById = cReplyById;
 
 function scheduleReconnect(reason) {
   if (reconnectTimer) return;
@@ -325,4 +325,3 @@ el("roomList")?.addEventListener("click", function (e) {
 initChat().catch((e) => {
   showToast(e.message || "初始化失败", "error");
 });
-
