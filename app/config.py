@@ -17,5 +17,14 @@ class Settings:
     session_cookie_samesite = os.getenv("SESSION_COOKIE_SAMESITE", "lax")
     session_cookie_domain = os.getenv("SESSION_COOKIE_DOMAIN") or None
 
+    @property
+    def normalized_database_url(self) -> str:
+        # Accept postgres:// in env files for compatibility with common hosting defaults.
+        if self.database_url.startswith("postgres://"):
+            return self.database_url.replace("postgres://", "postgresql+psycopg://", 1)
+        if self.database_url.startswith("postgresql://"):
+            return self.database_url.replace("postgresql://", "postgresql+psycopg://", 1)
+        return self.database_url
+
 
 app_settings = Settings()
