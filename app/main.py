@@ -35,6 +35,28 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 manager = ConnectionManager()
 
 
+def cookie_domain_for_request(request: Request) -> str | None:
+    configured = app_settings.session_cookie_domain
+    if not configured:
+        return None
+    host = (request.url.hostname or "").lower().rstrip(".")
+    domain = configured.lower().lstrip(".").rstrip(".")
+    if host == domain or host.endswith("." + domain):
+        return configured
+    return None
+
+
+def set_session_cookie(response: JSONResponse, request: Request, token: str) -> None:
+    response.set_cookie(
+        app_settings.session_cookie_name,
+        token,
+        httponly=True,
+        samesite=app_settings.session_cookie_samesite,
+        secure=app_settings.session_cookie_secure,
+        domain=cookie_domain_for_request(request),
+    )
+
+
 @app.on_event("startup")
 def on_startup() -> None:
     Base.metadata.create_all(bind=engine)
@@ -104,18 +126,22 @@ def login_page(request: Request, user=Depends(get_current_user)):
 
 @app.get("/logout")
 def logout(
+    request: Request,
     session: str | None = Cookie(default=None, alias=app_settings.session_cookie_name),
     db: Session = Depends(get_db),
 ):
     if session:
         crud.delete_session(db, session)
     resp = RedirectResponse(url="/login", status_code=status.HTTP_302_FOUND)
-    resp.delete_cookie(app_settings.session_cookie_name, domain=app_settings.session_cookie_domain)
+    resp.delete_cookie(app_settings.session_cookie_name)
+    domain = cookie_domain_for_request(request)
+    if domain:
+        resp.delete_cookie(app_settings.session_cookie_name, domain=domain)
     return resp
 
 
 @app.post("/api/auth/register")
-def register(payload: schemas.UserRegister, db: Session = Depends(get_db)):
+def register(request: Request, payload: schemas.UserRegister, db: Session = Depends(get_db)):
     if not payload.username.isalnum():
         raise HTTPException(status_code=400, detail="Username must be alphanumeric")
     if len(payload.password) < 4:
@@ -129,19 +155,12 @@ def register(payload: schemas.UserRegister, db: Session = Depends(get_db)):
         "user": {"id": user.id, "username": user.username, "gender": user.gender, "is_admin": user.is_admin},
     }
     response = JSONResponse(resp)
-    response.set_cookie(
-        app_settings.session_cookie_name,
-        sess.token,
-        httponly=True,
-        samesite=app_settings.session_cookie_samesite,
-        secure=app_settings.session_cookie_secure,
-        domain=app_settings.session_cookie_domain,
-    )
+    set_session_cookie(response, request, sess.token)
     return response
 
 
 @app.post("/api/auth/login")
-def login(payload: schemas.UserLogin, db: Session = Depends(get_db)):
+def login(request: Request, payload: schemas.UserLogin, db: Session = Depends(get_db)):
     user = crud.authenticate_user(db, payload.username, payload.password)
     if not user:
         raise HTTPException(status_code=400, detail="Invalid credentials")
@@ -151,14 +170,7 @@ def login(payload: schemas.UserLogin, db: Session = Depends(get_db)):
         "user": {"id": user.id, "username": user.username, "gender": user.gender, "is_admin": user.is_admin},
     }
     response = JSONResponse(resp)
-    response.set_cookie(
-        app_settings.session_cookie_name,
-        sess.token,
-        httponly=True,
-        samesite=app_settings.session_cookie_samesite,
-        secure=app_settings.session_cookie_secure,
-        domain=app_settings.session_cookie_domain,
-    )
+    set_session_cookie(response, request, sess.token)
     return response
 
 

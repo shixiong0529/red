@@ -228,8 +228,10 @@ sudo systemctl reload nginx
 
 ```env
 SESSION_COOKIE_SECURE=true
-SESSION_COOKIE_DOMAIN=chat.slow.best
+SESSION_COOKIE_DOMAIN=
 ```
+
+注意：如果同一应用同时通过多个根域名访问，例如 `chat.slow.best` 和 `shi.show`，不要把 `SESSION_COOKIE_DOMAIN` 写死为其中一个域名。留空会下发 host-only Cookie，两个域名都能各自保存登录态。
 
 应用新配置：
 

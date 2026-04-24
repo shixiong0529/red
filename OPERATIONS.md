@@ -99,8 +99,10 @@ DATABASE_URL=sqlite:////opt/red/data/red_dragonfly.db
 SESSION_COOKIE_NAME=session
 SESSION_COOKIE_SECURE=true
 SESSION_COOKIE_SAMESITE=lax
-SESSION_COOKIE_DOMAIN=chat.slow.best
+SESSION_COOKIE_DOMAIN=
 ```
+
+如果同一套服务同时挂多个互不隶属的域名，例如 `chat.slow.best` 和 `shi.show`，`SESSION_COOKIE_DOMAIN` 必须留空。写死为 `chat.slow.best` 时，浏览器访问 `shi.show` 会拒收登录接口返回的 session Cookie，表现为登录接口成功但仍停留在登录页。
 
 ## 6. 验证站点可用性
 
