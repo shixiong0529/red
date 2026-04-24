@@ -142,25 +142,7 @@ http://server-ip/
 
 ## 9. 启用 HTTPS
 
-本项目的实际生产环境中，`certbot --nginx` 自动 HTTP 验证没有跑通，因此当前已验证可用的是手动 DNS 验证方式。
-
-签发证书命令：
-
-```bash
-certbot certonly --manual --preferred-challenges dns --key-type rsa --cert-name chat.slow.best -d chat.slow.best --force-renewal
-```
-
-执行过程中，按提示在阿里云 DNS 中添加 TXT 记录：
-
-- 主机记录：`_acme-challenge.chat`
-- 记录类型：`TXT`
-- 记录值：certbot 输出的验证值
-
-验证 TXT 记录是否生效：
-
-```bash
-dig TXT _acme-challenge.chat.slow.best +short
-```
+首次启用 HTTPS 时，需要先为实际绑定的域名准备 Let's Encrypt 证书。证书签发、续期和故障处理步骤统一维护在 [OPERATIONS.md](./OPERATIONS.md)。
 
 证书签发成功后，按服务器实际域名和证书路径更新 nginx 站点配置：
 
