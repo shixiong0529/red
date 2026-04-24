@@ -150,115 +150,120 @@ sudo -u postgres psql -d red_db < /opt/red/data/你的备份文件.sql
 
 ## 8. HTTPS 证书续期
 
-当前证书信息：
+当前线上证书：
 
-- 域名：`chat.slow.best`
-- 续期方式：手动 DNS 验证
-- 到期时间：`2026-07-09`
+- `chat.slow.best`：到期时间 `2026-07-09`
+- `shi.show` / `www.shi.show`：到期时间 `2026-07-23`
 
 重要说明：
 
-- 当前证书不会自动续期。
-- 必须在到期前手动续签。
-- 建议在 `2026-06-25` 左右设置提醒。
+- `certbot.timer` 虽然存在，但当前 `certbot renew --dry-run` 会因为 HTTP webroot 验证返回 `403` 而失败。
+- 在没有重新修好 ACME HTTP 验证路径前，不要依赖自动续期。
+- 建议在证书到期前 2 周手动续期。
 
-续签命令：
+### 推荐手动续期方式
 
-```bash
-certbot certonly --manual --preferred-challenges dns --key-type rsa --cert-name chat.slow.best -d chat.slow.best --force-renewal
-```
+临时停止 nginx，用 certbot standalone 模式续期。这个方式不依赖 nginx 的 `/.well-known/acme-challenge/` 配置，只需要 80 端口能被 certbot 临时占用。
 
-作用：通过 DNS TXT 验证方式，重新签发线上使用的 RSA 证书。
-
-执行到提示时，需要在阿里云 DNS 中新增一条 TXT 记录：
-
-- 记录类型：`TXT`
-- 主机记录：`_acme-challenge.chat`
-- 记录值：`certbot` 输出的那串验证值
-
-TXT 记录生效后，先执行：
+1. 先确认当前证书和 nginx 状态：
 
 ```bash
-dig TXT _acme-challenge.chat.slow.best +short
+sudo certbot certificates
+sudo systemctl status nginx --no-pager
 ```
 
-作用：确认 DNS 验证记录已经生效，再回到 certbot 继续。
+作用：确认两张证书当前存在，并确认 nginx 正在运行。
 
-证书签发成功后，执行：
+2. 停止 nginx，释放 80 端口：
 
 ```bash
-systemctl reload nginx
+sudo systemctl stop nginx
 ```
 
-作用：让 nginx 重新加载新证书。
+作用：standalone 模式会临时启动一个验证服务，占用 80 端口。nginx 不停掉时，certbot 通常会因为端口被占用而失败。
 
-检查新证书是否生效：
+3. 续签 `chat.slow.best`：
 
 ```bash
-curl -Iv https://chat.slow.best
+sudo certbot certonly --standalone --force-renewal \
+  --cert-name chat.slow.best \
+  -d chat.slow.best
 ```
 
-作用：确认 HTTPS 证书校验正常。
+作用：重新签发 `/etc/letsencrypt/live/chat.slow.best/` 这套证书。
 
-### 手动续证极简版
-
-如果你不打算现在改造成自动续期，以后每次手动续证只需要按下面做：
-
-1. 登录服务器，执行下面这条命令：
+4. 续签 `shi.show` 和 `www.shi.show`：
 
 ```bash
-certbot certonly --manual --preferred-challenges dns --key-type rsa --cert-name chat.slow.best -d chat.slow.best --force-renewal
+sudo certbot certonly --standalone --force-renewal \
+  --cert-name shi.show \
+  -d shi.show \
+  -d www.shi.show
 ```
 
-作用：向 Let's Encrypt 申请重新签发 `chat.slow.best` 的证书。
+作用：重新签发 `/etc/letsencrypt/live/shi.show/` 这套证书。这里必须同时带上 `shi.show` 和 `www.shi.show`，否则可能会把原证书覆盖成只包含一个域名。
 
-2. 看到提示后，去阿里云 DNS 控制台添加一条 TXT 记录：
-
-- 主机记录：`_acme-challenge.chat`
-- 记录类型：`TXT`
-- 记录值：使用 certbot 当次输出的那一串随机字符串
-
-作用：告诉证书机构“这个域名确实由我控制”。
-
-3. 在服务器上执行：
+5. 无论续签成功还是失败，都要重新启动 nginx：
 
 ```bash
-dig TXT _acme-challenge.chat.slow.best +short
+sudo systemctl start nginx
 ```
 
-作用：确认 TXT 记录已经生效。
+作用：恢复网站访问。
 
-4. 回到刚才运行 certbot 的窗口，按回车继续。
-
-作用：让 certbot 完成验证并签发新证书。
-
-5. 证书签发成功后，执行：
+6. 检查 nginx 和证书列表：
 
 ```bash
-systemctl reload nginx
+sudo nginx -t
+sudo systemctl status nginx --no-pager
+sudo certbot certificates
 ```
 
-作用：让 nginx 重新加载新证书。
+作用：确认 nginx 配置语法正常、服务已经启动，并确认 `Expiry Date` 已经更新。
 
-6. 最后执行：
+7. 检查两个网站是否正常返回：
 
 ```bash
-curl -Iv https://chat.slow.best
+curl -L https://chat.slow.best/ -o /dev/null -w "%{http_code}\n"
+curl -L https://shi.show/ -o /dev/null -w "%{http_code}\n"
 ```
 
-作用：确认新证书已经生效，HTTPS 校验正常。
+两个域名都返回 `200`，并且 `sudo certbot certificates` 里的到期时间已经更新，就说明续期成功。
 
-7. 可选操作：回到阿里云 DNS，删除 `_acme-challenge.chat` 这条临时 TXT 记录。
+注意：停止 nginx 期间网站会短暂不可访问，建议在低访问时段操作。
 
-作用：清理续证时临时添加的验证记录。
+### 如果中途失败
 
-一句话总结：
+如果 certbot 失败，先恢复 nginx：
 
-- 运行 certbot
-- 按提示去阿里云加 TXT
-- 等 TXT 生效
-- 回车完成签证
-- reload nginx
+```bash
+sudo systemctl start nginx
+sudo systemctl status nginx --no-pager
+```
+
+然后查看失败原因：
+
+```bash
+sudo journalctl -u nginx -n 80 --no-pager
+sudo tail -n 120 /var/log/letsencrypt/letsencrypt.log
+```
+
+常见原因：
+
+- 80 端口没有放行。
+- nginx 没有真正停掉，80 端口仍被占用。
+- 域名 DNS 没有指向当前服务器公网 IP。
+- `www.shi.show` 没有解析到当前服务器，但续签命令里包含了它。
+
+### 如果要恢复自动续期
+
+当前自动续期失败的直接原因是 ACME HTTP 验证地址返回 `403`。如果后续要恢复 `certbot renew` 自动续期，需要先修好 nginx 对 `/.well-known/acme-challenge/` 的访问，再运行：
+
+```bash
+sudo certbot renew --dry-run
+```
+
+只有 dry-run 全部成功后，才能认为自动续期可靠。
 
 ## 9. 常见故障排查
 

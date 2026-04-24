@@ -162,60 +162,11 @@ certbot certonly --manual --preferred-challenges dns --key-type rsa --cert-name 
 dig TXT _acme-challenge.chat.slow.best +short
 ```
 
-证书签发成功后，把 nginx 配置切换为 HTTPS：
+证书签发成功后，按服务器实际域名和证书路径更新 nginx 站点配置：
 
-```nginx
-server {
-    listen 80;
-    server_name chat.slow.best;
-
-    location ^~ /.well-known/acme-challenge/ {
-        root /var/www/certbot;
-        default_type "text/plain";
-        try_files $uri =404;
-    }
-
-    location / {
-        return 301 https://$host$request_uri;
-    }
-}
-
-server {
-    listen 443 ssl http2;
-    server_name chat.slow.best;
-
-    ssl_certificate /etc/letsencrypt/live/chat.slow.best/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/chat.slow.best/privkey.pem;
-
-    client_max_body_size 10m;
-
-    location /static/ {
-        alias /opt/red/current/static/;
-        expires 7d;
-        add_header Cache-Control "public";
-    }
-
-    location /ws/chat {
-        proxy_pass http://127.0.0.1:8000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    location / {
-        proxy_pass http://127.0.0.1:8000;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
+- nginx 站点配置：`/etc/nginx/sites-available/red`
+- 证书目录：`/etc/letsencrypt/live/<域名>/`
+- 项目内的基础反代配置模板：`deploy/nginx-red.conf`
 
 然后执行：
 
@@ -255,4 +206,4 @@ sudo systemctl restart red
 - 如果后续并发增长，可以迁移到 MySQL 或 PostgreSQL，并通过 `DATABASE_URL` 切换。
 - WebSocket 接口是 `/ws/chat`，当前 nginx 配置已经包含升级头支持。
 - 应用首次启动时会从 `bak/` 目录中读取旧版页面素材和初始数据，因此生产环境请保留 `bak/`。
-- 当前证书是手动 DNS 验证签发，不会自动续期。自动续期方案请参考 [deploy/ACME_AUTORENEW.md](./deploy/ACME_AUTORENEW.md)。
+- 证书续期操作统一维护在 [OPERATIONS.md](./OPERATIONS.md)。

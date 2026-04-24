@@ -185,10 +185,9 @@ bash update.sh
 
 ### 手动续签 HTTPS 证书
 
-当前线上证书为手动续期，具体步骤已经写在：
+当前线上证书续期步骤统一维护在：
 
 - [OPERATIONS.md](./OPERATIONS.md)
-- [deploy/ACME_AUTORENEW.md](./deploy/ACME_AUTORENEW.md)
 
 ## 相关文档
 
@@ -196,7 +195,6 @@ bash update.sh
 - [OPERATIONS.md](./OPERATIONS.md)
 - [POSTGRESQL_MIGRATION.md](./POSTGRESQL_MIGRATION.md)
 - [POSTGRESQL_USAGE.md](./POSTGRESQL_USAGE.md)
-- [deploy/ACME_AUTORENEW.md](./deploy/ACME_AUTORENEW.md)
 - [red-技术架构与功能模块.md](./red-技术架构与功能模块.md)
 
 ## 后续可继续增强的方向
